@@ -3,6 +3,39 @@ import './App.css';
 
 function App() {
   const [expandedFaq, setExpandedFaq] = useState(null);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    state: '',
+    country: '',
+    hearAboutUs: ''
+  });
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Form submitted:', formData);
+    // Handle form submission here
+    alert('Thank you for your interest! We\'ll send you the free info guide shortly.');
+    // Reset form
+    setFormData({
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      state: '',
+      country: '',
+      hearAboutUs: ''
+    });
+  };
 
   const toggleFaq = (index) => {
     setExpandedFaq(expandedFaq === index ? null : index);
@@ -19,6 +52,69 @@ function App() {
     'Senior Thesis', 'US History: Founding Era', 'Written Portfolio: Effective Essays',
     'Written Portfolio: Narrative\'s Flow', 'Written Portfolio: Persuasion with Style',
     'Written Portfolio: Technical Tools', 'World History: Contemporary to Modern'
+  ];
+
+  const trendingCourses = [
+    {
+      id: 1,
+      title: 'Constitutional Studies',
+      instructor: 'With Professor David Mitchell',
+      duration: '1 hour 45 minutes',
+      episodes: '12 lessons',
+      badge: 'New',
+      image: '📜',
+      description: 'Master the foundations of American government and constitutional principles.'
+    },
+    {
+      id: 2,
+      title: 'Principles of Leadership',
+      instructor: 'With Leadership Experts',
+      duration: '2 hours 15 minutes', 
+      episodes: '15 lessons',
+      badge: 'Popular',
+      image: '👑',
+      description: 'Develop essential leadership skills for academic and personal success.'
+    },
+    {
+      id: 3,
+      title: 'Literature: Self Governance',
+      instructor: 'With Dr. Sarah Johnson',
+      duration: '1 hour 30 minutes',
+      episodes: '10 lessons',
+      badge: 'New',
+      image: '📚',
+      description: 'Explore classic literature through the lens of personal responsibility.'
+    },
+    {
+      id: 4,
+      title: 'Senior Thesis',
+      instructor: 'With Research Mentors',
+      duration: '3 hours 20 minutes',
+      episodes: '20 lessons',
+      badge: 'Advanced',
+      image: '🎓',
+      description: 'Complete your capstone research project with expert guidance.'
+    },
+    {
+      id: 5,
+      title: 'American Government & Economics',
+      instructor: 'With Policy Experts',
+      duration: '2 hours 5 minutes',
+      episodes: '18 lessons',
+      badge: 'Popular',
+      image: '🏛️',
+      description: 'Understand how government and economics shape our daily lives.'
+    },
+    {
+      id: 6,
+      title: 'Experiential Learning',
+      instructor: 'With Field Specialists',
+      duration: '1 hour 50 minutes',
+      episodes: '14 lessons',
+      badge: 'Hands-on',
+      image: '🔬',
+      description: 'Learn through real-world projects and practical applications.'
+    }
   ];
 
   const faqs = [
@@ -53,7 +149,8 @@ function App() {
       {/* Navigation */}
       <nav className="navbar">
         <div className="nav-container">
-          <div className="nav-logo">
+          <div className="nav-logo" onClick={() => window.location.href = '/'}>
+            <img src="/ahs-logo.png" alt="American Heritage Online" className="logo-image" />
             <div className="logo-text">American Heritage</div>
           </div>
           <div className="nav-links">
@@ -61,32 +158,236 @@ function App() {
             <a href="#">Courses</a>
             <a href="#">Admissions</a>
             <a href="#">Support</a>
-            <button className="nav-cta">Get Started</button>
+            <a href="#" className="nav-login">Login</a>
+            <button className="nav-cta">Reserve Your Spot</button>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero Section with Lead Capture */}
       <header className="hero-section">
-        <div className="hero-background">
-          <div className="hero-overlay"></div>
+        <div className="hero-container">
           <div className="hero-content">
-            <div className="hero-text">
-              <h1 className="hero-title">American Heritage Online</h1>
-              <h3 className="hero-subtitle">Merge the faithful home with the faithful school.</h3>
+            <div className="hero-left">
+              <h1 className="hero-title">Education At Home, Made Easy</h1>
+              <p className="hero-subtitle">*98% of families recommend American Heritage Online</p>
               <p className="hero-description">
-                American Heritage Online High School offers an educational experience that mirrors 
-                the enriching environment of our world-class private school but makes it accessible 
-                to students anywhere at a fraction of the cost.
+                The #1 Most Loved Program By Homeschool Families in America. 
+                Experience faith-based education that mirrors our world-class private school 
+                but makes it accessible to students anywhere.
               </p>
-              <div className="hero-actions">
-                <button className="hero-btn primary">Get Started</button>
-                <button className="hero-btn secondary">Learn More</button>
+              
+              <form className="lead-capture-form" onSubmit={handleSubmit}>
+                <h3>Ready to get started? Request more info:</h3>
+                <div className="form-row">
+                  <input
+                    type="text"
+                    name="firstName"
+                    placeholder="First Name"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  <input
+                    type="text"
+                    name="lastName"
+                    placeholder="Last Name"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="form-row">
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Email Address"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                  />
+                  <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Phone Number"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                  />
+                </div>
+                <div className="form-row">
+                  <select
+                    name="state"
+                    value={formData.state}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="">Select State</option>
+                    <option value="AL">Alabama</option>
+                    <option value="AK">Alaska</option>
+                    <option value="AZ">Arizona</option>
+                    <option value="AR">Arkansas</option>
+                    <option value="CA">California</option>
+                    <option value="CO">Colorado</option>
+                    <option value="CT">Connecticut</option>
+                    <option value="DE">Delaware</option>
+                    <option value="FL">Florida</option>
+                    <option value="GA">Georgia</option>
+                    <option value="HI">Hawaii</option>
+                    <option value="ID">Idaho</option>
+                    <option value="IL">Illinois</option>
+                    <option value="IN">Indiana</option>
+                    <option value="IA">Iowa</option>
+                    <option value="KS">Kansas</option>
+                    <option value="KY">Kentucky</option>
+                    <option value="LA">Louisiana</option>
+                    <option value="ME">Maine</option>
+                    <option value="MD">Maryland</option>
+                    <option value="MA">Massachusetts</option>
+                    <option value="MI">Michigan</option>
+                    <option value="MN">Minnesota</option>
+                    <option value="MS">Mississippi</option>
+                    <option value="MO">Missouri</option>
+                    <option value="MT">Montana</option>
+                    <option value="NE">Nebraska</option>
+                    <option value="NV">Nevada</option>
+                    <option value="NH">New Hampshire</option>
+                    <option value="NJ">New Jersey</option>
+                    <option value="NM">New Mexico</option>
+                    <option value="NY">New York</option>
+                    <option value="NC">North Carolina</option>
+                    <option value="ND">North Dakota</option>
+                    <option value="OH">Ohio</option>
+                    <option value="OK">Oklahoma</option>
+                    <option value="OR">Oregon</option>
+                    <option value="PA">Pennsylvania</option>
+                    <option value="RI">Rhode Island</option>
+                    <option value="SC">South Carolina</option>
+                    <option value="SD">South Dakota</option>
+                    <option value="TN">Tennessee</option>
+                    <option value="TX">Texas</option>
+                    <option value="UT">Utah</option>
+                    <option value="VT">Vermont</option>
+                    <option value="VA">Virginia</option>
+                    <option value="WA">Washington</option>
+                    <option value="WV">West Virginia</option>
+                    <option value="WI">Wisconsin</option>
+                    <option value="WY">Wyoming</option>
+                  </select>
+                  <select
+                    name="country"
+                    value={formData.country}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="">Select Country</option>
+                    <option value="US">United States</option>
+                    <option value="CA">Canada</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="AU">Australia</option>
+                    <option value="DE">Germany</option>
+                    <option value="FR">France</option>
+                    <option value="JP">Japan</option>
+                    <option value="MX">Mexico</option>
+                    <option value="BR">Brazil</option>
+                    <option value="IN">India</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                </div>
+                <div className="form-row-full">
+                  <select
+                    name="hearAboutUs"
+                    value={formData.hearAboutUs}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="">How did you hear about us?</option>
+                    <option value="google">Google Search</option>
+                    <option value="social-media">Social Media</option>
+                    <option value="friend-family">Friend or Family</option>
+                    <option value="advertisement">Advertisement</option>
+                    <option value="blog-article">Blog or Article</option>
+                    <option value="homeschool-group">Homeschool Group</option>
+                    <option value="education-fair">Education Fair</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <button type="submit" className="form-submit-btn">Get Free Info Guide</button>
+                <p className="form-disclaimer">100% Free • No Commitment Required</p>
+              </form>
+            </div>
+            
+            <div className="hero-right">
+              <div className="scrolling-images">
+                <div className="image-scroll">
+                  <div className="scroll-item">
+                    <div className="student-card">
+                      <div className="student-avatar">👩‍🎓</div>
+                      <h4>Sarah M.</h4>
+                      <p>"AHS Online gave me the flexibility to pursue my passion for music while maintaining academic excellence."</p>
+                    </div>
+                  </div>
+                  <div className="scroll-item">
+                    <div className="student-card">
+                      <div className="student-avatar">👨‍🎓</div>
+                      <h4>David L.</h4>
+                      <p>"The faith-based curriculum helped me grow both academically and spiritually."</p>
+                    </div>
+                  </div>
+                  <div className="scroll-item">
+                    <div className="student-card">
+                      <div className="student-avatar">👩‍🎓</div>
+                      <h4>Emma R.</h4>
+                      <p>"Live mentoring sessions made all the difference in my learning journey."</p>
+                    </div>
+                  </div>
+                  <div className="scroll-item">
+                    <div className="student-card">
+                      <div className="student-avatar">👨‍🎓</div>
+                      <h4>Michael T.</h4>
+                      <p>"I was able to graduate early and start college with confidence."</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </header>
+
+      {/* Trending Courses Section */}
+      <section className="trending-courses-section">
+        <div className="container">
+          <div className="trending-header">
+            <h2>Popular now</h2>
+            <button className="see-all-btn">See all</button>
+          </div>
+          <div className="courses-scroll-container">
+            <div className="courses-scroll">
+              {trendingCourses.map((course) => (
+                <div key={course.id} className="course-card">
+                  <div className="course-image">
+                    <div className="course-icon">{course.image}</div>
+                    {course.badge && <span className={`course-badge ${course.badge.toLowerCase()}`}>{course.badge}</span>}
+                  </div>
+                  <div className="course-content">
+                    <h3 className="course-title">{course.title}</h3>
+                    <p className="course-instructor">{course.instructor}</p>
+                    <div className="course-meta">
+                      <span className="course-duration">{course.duration}</span>
+                      <span className="course-episodes">{course.episodes}</span>
+                    </div>
+                    <p className="course-description">{course.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="scroll-indicators">
+            <button className="scroll-btn prev" aria-label="Previous courses">‹</button>
+            <button className="scroll-btn next" aria-label="Next courses">›</button>
+          </div>
+        </div>
+      </section>
 
       {/* Video Testimonial Section */}
       <section className="testimonial-section">
