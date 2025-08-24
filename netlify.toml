@@ -3,6 +3,11 @@
   command = ""
 
 [[redirects]]
+  from = "/ahs-online/*"
+  to = "/ahs-online/index.html"
+  status = 200
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
