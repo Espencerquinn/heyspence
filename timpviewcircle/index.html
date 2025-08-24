@@ -10,15 +10,38 @@
 <body>
     <header class="hero">
         <div class="hero-content">
-            <h1 class="hero-title">Timpview Circle</h1>
-            <p class="hero-subtitle">Premium Subdivision Lots - Build Your Dream Home</p>
-            <div class="hero-cta">
-                <a href="#lots" class="btn-primary">View Available Lots</a>
-                <a href="#contact" class="btn-secondary">Schedule a Tour</a>
+            <div class="hero-text">
+                <h1 class="hero-title">Premium Charleston Lots with Breathtaking Views of Mt. Timpanogos</h1>
+                <p class="hero-subtitle">Own your slice of heaven in Utah's Heber Valley - two exclusive lots with unbeatable access to recreation, shopping, and year-round adventure.</p>
             </div>
-        </div>
-        <div class="hero-image">
-            <div class="placeholder-image">Beautiful Mountain Views</div>
+            <div class="hero-form">
+                <form class="lead-capture-form" action="#" method="POST">
+                    <h3 class="form-title">Get More Information</h3>
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="interest">I'm interested in:</label>
+                        <select id="interest" name="interest" required>
+                            <option value="">Select a lot...</option>
+                            <option value="lot1">Lot 1</option>
+                            <option value="lot2">Lot 2</option>
+                            <option value="lot3">Lot 3</option>
+                            <option value="general">General Information</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="form-submit">Get Information</button>
+                </form>
+            </div>
         </div>
     </header>
 

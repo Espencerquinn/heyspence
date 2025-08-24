@@ -23,7 +23,7 @@ body {
     padding: 4rem 0;
     display: flex;
     align-items: center;
-    min-height: 70vh;
+    min-height: 80vh;
 }
 
 .hero-content {
@@ -36,23 +36,91 @@ body {
     align-items: center;
 }
 
+.hero-text {
+    padding-right: 2rem;
+}
+
 .hero-title {
-    font-size: 3.5rem;
+    font-size: 2.75rem;
     font-weight: 700;
     margin-bottom: 1rem;
     line-height: 1.2;
 }
 
 .hero-subtitle {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
     margin-bottom: 2rem;
     opacity: 0.9;
+    line-height: 1.5;
 }
 
-.hero-cta {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
+/* Lead Capture Form */
+.hero-form {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.lead-capture-form {
+    width: 100%;
+}
+
+.form-title {
+    color: #2c5530;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
+    display: block;
+    color: #2c5530;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.875rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background: white;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #4a7c59;
+    box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.1);
+}
+
+.form-submit {
+    width: 100%;
+    background: linear-gradient(135deg, #2c5530 0%, #4a7c59 100%);
+    color: white;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(44, 85, 48, 0.3);
 }
 
 .btn-primary, .btn-secondary {
@@ -294,10 +362,25 @@ body {
     .hero-content {
         grid-template-columns: 1fr;
         text-align: center;
+        gap: 2rem;
+    }
+    
+    .hero-text {
+        padding-right: 0;
+        order: 2;
+    }
+    
+    .hero-form {
+        order: 1;
+        margin-bottom: 2rem;
     }
     
     .hero-title {
-        font-size: 2.5rem;
+        font-size: 2rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
     }
     
     .lots-grid {
@@ -307,10 +390,6 @@ body {
     .contact-content {
         grid-template-columns: 1fr;
         text-align: center;
-    }
-    
-    .hero-cta {
-        justify-content: center;
     }
     
     .container {
