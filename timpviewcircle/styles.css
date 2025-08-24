@@ -10,6 +10,29 @@ body {
     color: #333;
 }
 
+/* Banner */
+.banner {
+    background: #dc2626;
+    color: white;
+    padding: 0.75rem 0;
+    text-align: center;
+    position: relative;
+    z-index: 1000;
+}
+
+.banner-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.banner p {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.025em;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
