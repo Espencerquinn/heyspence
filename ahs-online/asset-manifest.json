@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "./ahs-online/static/css/main.08a461f5.css",
+    "main.js": "./ahs-online/static/js/main.975330ff.js",
+    "index.html": "./ahs-online/index.html",
+    "main.08a461f5.css.map": "./ahs-online/static/css/main.08a461f5.css.map",
+    "main.975330ff.js.map": "./ahs-online/static/js/main.975330ff.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.08a461f5.css",
+    "static/js/main.975330ff.js"
+  ]
+}
