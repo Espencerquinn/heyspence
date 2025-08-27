@@ -701,6 +701,131 @@ body {
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
+/* Comparison Table Styles */
+.comparison-table-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #f8fafc;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.comparison-table {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 0;
+}
+
+.comparison-header-row {
+  display: contents;
+}
+
+.comparison-header-row .feature-column {
+  background: #1e293b;
+  color: white;
+  padding: 2rem 1.5rem;
+  font-weight: 700;
+  font-size: 1.125rem;
+  display: flex;
+  align-items: center;
+}
+
+.comparison-header-row .program-column {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  padding: 1.5rem 1rem;
+  text-align: center;
+}
+
+.program-header h4 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.program-header .program-price {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.program-header .price {
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+}
+
+.program-header .price-unit {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.comparison-row {
+  display: contents;
+}
+
+.comparison-row .feature-column {
+  background: white;
+  padding: 1rem 1.5rem;
+  font-weight: 500;
+  color: #374151;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+}
+
+.comparison-row .program-column {
+  background: white;
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.comparison-row:nth-child(even) .feature-column,
+.comparison-row:nth-child(even) .program-column {
+  background: #f8fafc;
+}
+
+.comparison-cta-row {
+  display: contents;
+}
+
+.comparison-cta-row .feature-column {
+  background: white;
+  padding: 2rem 1.5rem;
+}
+
+.comparison-cta-row .program-column {
+  background: white;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.comparison-cta-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 140px;
+}
+
+.comparison-cta-btn:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
 /* Testimonial Section */
 .testimonial-section {
   padding: 4rem 0;
@@ -1350,5 +1475,81 @@ body {
   .program-cta-btn {
     width: 100%;
     max-width: 300px;
+  }
+  
+  /* Comparison Table Mobile */
+  .comparison-table {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .comparison-table-container {
+    margin: 0 1rem;
+  }
+  
+  .comparison-header-row .feature-column,
+  .comparison-header-row .program-column {
+    display: none;
+  }
+  
+  .comparison-row {
+    display: block;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  
+  .comparison-row .feature-column {
+    background: #1e293b;
+    color: white;
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    border-bottom: none;
+  }
+  
+  .comparison-row .program-column {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .comparison-row .program-column:last-child {
+    border-bottom: none;
+  }
+  
+  .comparison-row .program-column::before {
+    content: attr(data-program);
+    font-weight: 600;
+    color: #374151;
+  }
+  
+  .comparison-cta-row {
+    display: block;
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .comparison-cta-row .feature-column {
+    display: none;
+  }
+  
+  .comparison-cta-row .program-column {
+    display: block;
+    margin-bottom: 1rem;
+    padding: 0;
+  }
+  
+  .comparison-cta-row .program-column:last-child {
+    margin-bottom: 0;
+  }
+  
+  .comparison-cta-btn {
+    max-width: none;
   }
 }

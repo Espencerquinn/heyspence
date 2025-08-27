@@ -489,41 +489,96 @@ function App() {
                 {programs[programKey].name}
               </button>
             ))}
+            <button
+              className={`program-tab ${activeProgram === 'Compare All' ? 'active' : ''}`}
+              onClick={() => setActiveProgram('Compare All')}
+            >
+              Compare All
+            </button>
           </div>
 
-          <div className="program-details">
-            <div className="program-overview">
-              <div className="program-info">
-                <h3>{programs[activeProgram].name}</h3>
-                <p className="program-description">{programs[activeProgram].description}</p>
-                <div className="program-pricing">
-                  <span className="price">{programs[activeProgram].price}</span>
-                  <span className="price-unit">{programs[activeProgram].priceUnit}</span>
+          {activeProgram === 'Compare All' ? (
+            <div className="comparison-table-container">
+              <div className="comparison-table">
+                <div className="comparison-header-row">
+                  <div className="feature-column">Features</div>
+                  {Object.keys(programs).map((programKey) => (
+                    <div key={programKey} className="program-column">
+                      <div className="program-header">
+                        <h4>{programs[programKey].name}</h4>
+                        <div className="program-price">
+                          <span className="price">{programs[programKey].price}</span>
+                          <span className="price-unit">{programs[programKey].priceUnit}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {programs.Live.features.map((feature, index) => (
+                  <div key={index} className="comparison-row">
+                    <div className="feature-column">{feature.name}</div>
+                    {Object.keys(programs).map((programKey) => (
+                      <div key={programKey} className="program-column">
+                        <span className={`feature-status ${
+                          programs[programKey].features[index].included === true ? 'included' : 
+                          programs[programKey].features[index].included === false ? 'not-included' : 'partial'
+                        }`}>
+                          {programs[programKey].features[index].included === true ? '✓' : 
+                           programs[programKey].features[index].included === false ? '✗' : '*'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+                
+                <div className="comparison-cta-row">
+                  <div className="feature-column"></div>
+                  {Object.keys(programs).map((programKey) => (
+                    <div key={programKey} className="program-column">
+                      <button className="comparison-cta-btn" onClick={() => setActiveProgram(programKey)}>
+                        Learn More
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
-
-            <div className="features-comparison">
-              <div className="features-list">
-                {programs[activeProgram].features.map((feature, index) => (
-                  <div key={index} className="feature-item">
-                    <span className="feature-name">{feature.name}</span>
-                    <span className={`feature-status ${
-                      feature.included === true ? 'included' : 
-                      feature.included === false ? 'not-included' : 'partial'
-                    }`}>
-                      {feature.included === true ? '✓' : 
-                       feature.included === false ? '✗' : '*'}
-                    </span>
+          ) : (
+            <div className="program-details">
+              <div className="program-overview">
+                <div className="program-info">
+                  <h3>{programs[activeProgram].name}</h3>
+                  <p className="program-description">{programs[activeProgram].description}</p>
+                  <div className="program-pricing">
+                    <span className="price">{programs[activeProgram].price}</span>
+                    <span className="price-unit">{programs[activeProgram].priceUnit}</span>
                   </div>
-                ))}
+                </div>
+              </div>
+
+              <div className="features-comparison">
+                <div className="features-list">
+                  {programs[activeProgram].features.map((feature, index) => (
+                    <div key={index} className="feature-item">
+                      <span className="feature-name">{feature.name}</span>
+                      <span className={`feature-status ${
+                        feature.included === true ? 'included' : 
+                        feature.included === false ? 'not-included' : 'partial'
+                      }`}>
+                        {feature.included === true ? '✓' : 
+                         feature.included === false ? '✗' : '*'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="program-cta">
+                <button className="program-cta-btn">Learn More About {programs[activeProgram].name}</button>
               </div>
             </div>
-
-            <div className="program-cta">
-              <button className="program-cta-btn">Learn More About {programs[activeProgram].name}</button>
-            </div>
-          </div>
+          )}
         </div>
       </section>
 
