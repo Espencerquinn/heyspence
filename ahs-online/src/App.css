@@ -508,6 +508,199 @@ body {
   }
 }
 
+/* Program Comparison Section */
+.program-comparison-section {
+  padding: 4rem 0;
+  background: white;
+}
+
+.comparison-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.comparison-header h2 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #1e293b;
+}
+
+.comparison-header p {
+  font-size: 1.125rem;
+  color: #64748b;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.program-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 3rem;
+  background: #f1f5f9;
+  padding: 0.5rem;
+  border-radius: 12px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 3rem;
+}
+
+.program-tab {
+  flex: 1;
+  padding: 0.875rem 1.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.program-tab:hover {
+  color: #374151;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.program-tab.active {
+  background: #dc2626;
+  color: white;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+.program-details {
+  max-width: 900px;
+  margin: 0 auto;
+  background: #f8fafc;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.program-overview {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  padding: 2.5rem;
+  text-align: center;
+}
+
+.program-info h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.program-description {
+  font-size: 1.125rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.95;
+  line-height: 1.6;
+}
+
+.program-pricing {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.price {
+  font-size: 2.5rem;
+  font-weight: 800;
+}
+
+.price-unit {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.features-comparison {
+  padding: 2rem;
+}
+
+.features-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.feature-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.feature-name {
+  font-weight: 500;
+  color: #374151;
+  font-size: 1rem;
+}
+
+.feature-status {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.feature-status.included {
+  background: #10b981;
+  color: white;
+}
+
+.feature-status.not-included {
+  background: #ef4444;
+  color: white;
+}
+
+.feature-status.partial {
+  background: #f59e0b;
+  color: white;
+}
+
+.program-cta {
+  padding: 2rem;
+  text-align: center;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+}
+
+.program-cta-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.program-cta-btn:hover {
+  background: #b91c1c;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
 /* Testimonial Section */
 .testimonial-section {
   padding: 4rem 0;
@@ -1100,5 +1293,62 @@ body {
   
   .faq-answer {
     padding: 0 1rem 1rem;
+  }
+  
+  /* Program Comparison Mobile */
+  .comparison-header h2 {
+    font-size: 2rem;
+  }
+  
+  .program-tabs {
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 100%;
+  }
+  
+  .program-tab {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+  
+  .program-details {
+    margin: 0 1rem;
+  }
+  
+  .program-overview {
+    padding: 2rem 1.5rem;
+  }
+  
+  .program-info h3 {
+    font-size: 1.75rem;
+  }
+  
+  .program-description {
+    font-size: 1rem;
+  }
+  
+  .price {
+    font-size: 2rem;
+  }
+  
+  .features-comparison {
+    padding: 1.5rem 1rem;
+  }
+  
+  .feature-item {
+    padding: 0.875rem 1rem;
+  }
+  
+  .feature-name {
+    font-size: 0.9rem;
+  }
+  
+  .program-cta {
+    padding: 1.5rem 1rem;
+  }
+  
+  .program-cta-btn {
+    width: 100%;
+    max-width: 300px;
   }
 }

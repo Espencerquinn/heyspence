@@ -3,6 +3,7 @@ import './App.css';
 
 function App() {
   const [expandedFaq, setExpandedFaq] = useState(null);
+  const [activeProgram, setActiveProgram] = useState('Live');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -117,6 +118,105 @@ function App() {
     }
   ];
 
+  const programs = {
+    Live: {
+      name: 'Live',
+      price: '$360',
+      priceUnit: 'per .5 Credit',
+      description: 'Interactive live classes with real-time instruction and peer collaboration.',
+      features: [
+        { name: 'Online Course', included: true },
+        { name: 'Live Zoom Classes', included: true },
+        { name: 'Mentor Guided', included: true },
+        { name: 'Earn Credit on Transcript', included: true },
+        { name: 'Semester-Based', included: true },
+        { name: 'Academic Advisors', included: true },
+        { name: 'Student Devotionals', included: true },
+        { name: 'Video Instructions', included: true },
+        { name: 'Group Learning Options', included: true },
+        { name: 'Late Work Policy', included: true },
+        { name: 'Student Clubs/Activities', included: true },
+        { name: 'Student Council', included: true },
+        { name: 'On Campus Sports & Arts', included: false },
+        { name: 'On Campus Clubs', included: false },
+        { name: 'On Campus Seminary', included: false },
+        { name: 'Participate in Dances', included: false }
+      ]
+    },
+    MyPace: {
+      name: 'MyPace',
+      price: '$329',
+      priceUnit: 'per .5 Credit',
+      description: 'Self-paced learning with mentor support and flexible scheduling.',
+      features: [
+        { name: 'Online Course', included: true },
+        { name: 'Live Zoom Classes', included: false },
+        { name: 'Mentor Guided', included: true },
+        { name: 'Earn Credit on Transcript', included: true },
+        { name: 'Semester-Based', included: false },
+        { name: 'Academic Advisors', included: true },
+        { name: 'Student Devotionals', included: true },
+        { name: 'Video Instructions', included: true },
+        { name: 'Group Learning Options', included: false },
+        { name: 'Late Work Policy', included: false },
+        { name: 'Student Clubs/Activities', included: true },
+        { name: 'Student Council', included: false },
+        { name: 'On Campus Sports & Arts', included: false },
+        { name: 'On Campus Clubs', included: false },
+        { name: 'On Campus Seminary', included: false },
+        { name: 'Participate in Dances', included: false }
+      ]
+    },
+    'Non-Credit': {
+      name: 'Non-Credit',
+      price: '$109',
+      priceUnit: 'per Course',
+      description: 'Flexible learning without credit requirements, perfect for supplemental education.',
+      features: [
+        { name: 'Online Course', included: true },
+        { name: 'Live Zoom Classes', included: false },
+        { name: 'Mentor Guided', included: false },
+        { name: 'Earn Credit on Transcript', included: false },
+        { name: 'Semester-Based', included: false },
+        { name: 'Academic Advisors', included: false },
+        { name: 'Student Devotionals', included: false },
+        { name: 'Video Instructions', included: true },
+        { name: 'Group Learning Options', included: false },
+        { name: 'Late Work Policy', included: false },
+        { name: 'Student Clubs/Activities', included: false },
+        { name: 'Student Council', included: false },
+        { name: 'On Campus Sports & Arts', included: false },
+        { name: 'On Campus Clubs', included: false },
+        { name: 'On Campus Seminary', included: false },
+        { name: 'Participate in Dances', included: false }
+      ]
+    },
+    'Campus Connect': {
+      name: 'Campus Connect',
+      price: '$500',
+      priceUnit: 'per semester',
+      description: 'Full campus experience with online flexibility and on-campus activities.',
+      features: [
+        { name: 'Online Course', included: 'partial' },
+        { name: 'Live Zoom Classes', included: 'partial' },
+        { name: 'Mentor Guided', included: 'partial' },
+        { name: 'Earn Credit on Transcript', included: 'partial' },
+        { name: 'Semester-Based', included: 'partial' },
+        { name: 'Academic Advisors', included: 'partial' },
+        { name: 'Student Devotionals', included: 'partial' },
+        { name: 'Video Instructions', included: 'partial' },
+        { name: 'Group Learning Options', included: 'partial' },
+        { name: 'Late Work Policy', included: 'partial' },
+        { name: 'Student Clubs/Activities', included: 'partial' },
+        { name: 'Student Council', included: 'partial' },
+        { name: 'On Campus Sports & Arts', included: true },
+        { name: 'On Campus Clubs', included: true },
+        { name: 'On Campus Seminary', included: true },
+        { name: 'Participate in Dances', included: true }
+      ]
+    }
+  };
+
   const faqs = [
     {
       question: "Is American Heritage Online Accredited?",
@@ -151,7 +251,6 @@ function App() {
         <div className="nav-container">
           <div className="nav-logo" onClick={() => window.location.href = '/'}>
             <img src="/ahs-logo.png" alt="American Heritage Online" className="logo-image" />
-            <div className="logo-text">American Heritage</div>
           </div>
           <div className="nav-links">
             <a href="#">About</a>
@@ -353,6 +452,62 @@ function App() {
           </div>
         </div>
       </header>
+
+      {/* Program Comparison Section */}
+      <section className="program-comparison-section">
+        <div className="container">
+          <div className="comparison-header">
+            <h2>Choose Your Learning Path</h2>
+            <p>Discover the flexibility of American Heritage Online with programs designed to fit your student's unique needs and schedule.</p>
+          </div>
+          
+          <div className="program-tabs">
+            {Object.keys(programs).map((programKey) => (
+              <button
+                key={programKey}
+                className={`program-tab ${activeProgram === programKey ? 'active' : ''}`}
+                onClick={() => setActiveProgram(programKey)}
+              >
+                {programs[programKey].name}
+              </button>
+            ))}
+          </div>
+
+          <div className="program-details">
+            <div className="program-overview">
+              <div className="program-info">
+                <h3>{programs[activeProgram].name}</h3>
+                <p className="program-description">{programs[activeProgram].description}</p>
+                <div className="program-pricing">
+                  <span className="price">{programs[activeProgram].price}</span>
+                  <span className="price-unit">{programs[activeProgram].priceUnit}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="features-comparison">
+              <div className="features-list">
+                {programs[activeProgram].features.map((feature, index) => (
+                  <div key={index} className="feature-item">
+                    <span className="feature-name">{feature.name}</span>
+                    <span className={`feature-status ${
+                      feature.included === true ? 'included' : 
+                      feature.included === false ? 'not-included' : 'partial'
+                    }`}>
+                      {feature.included === true ? '✓' : 
+                       feature.included === false ? '✗' : '*'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="program-cta">
+              <button className="program-cta-btn">Learn More About {programs[activeProgram].name}</button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Trending Courses Section */}
       <section className="trending-courses-section">
