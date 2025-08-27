@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.css": "./ahs-online/static/css/main.f0bc74e5.css",
-    "main.js": "./ahs-online/static/js/main.76681dd7.js",
-    "index.html": "./ahs-online/index.html",
-    "main.f0bc74e5.css.map": "./ahs-online/static/css/main.f0bc74e5.css.map",
-    "main.76681dd7.js.map": "./ahs-online/static/js/main.76681dd7.js.map"
+    "main.css": "./static/css/main.f0bc74e5.css",
+    "main.js": "./static/js/main.76681dd7.js",
+    "index.html": "./index.html",
+    "main.f0bc74e5.css.map": "./static/css/main.f0bc74e5.css.map",
+    "main.76681dd7.js.map": "./static/js/main.76681dd7.js.map"
   },
   "entrypoints": [
     "static/css/main.f0bc74e5.css",
