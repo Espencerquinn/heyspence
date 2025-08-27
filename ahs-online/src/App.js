@@ -453,6 +453,24 @@ function App() {
         </div>
       </header>
 
+      {/* Video Testimonial Section */}
+      <section className="testimonial-section">
+        <div className="container">
+          <div className="testimonial-content">
+            <div className="testimonial-video">
+              <div className="video-placeholder">
+                <div className="play-button">▶</div>
+                <div className="testimonial-placeholder"></div>
+              </div>
+            </div>
+            <div className="testimonial-text">
+              <h2>"Merge the faithful home with the faithful school."</h2>
+              <p>Hear from our students about their experience with American Heritage Online and how it has transformed their education journey.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Program Comparison Section */}
       <section className="program-comparison-section">
         <div className="container">
@@ -540,24 +558,6 @@ function App() {
           <div className="scroll-indicators">
             <button className="scroll-btn prev" aria-label="Previous courses">‹</button>
             <button className="scroll-btn next" aria-label="Next courses">›</button>
-          </div>
-        </div>
-      </section>
-
-      {/* Video Testimonial Section */}
-      <section className="testimonial-section">
-        <div className="container">
-          <div className="testimonial-content">
-            <div className="testimonial-video">
-              <div className="video-placeholder">
-                <div className="play-button">▶</div>
-                <div className="testimonial-placeholder"></div>
-              </div>
-            </div>
-            <div className="testimonial-text">
-              <h2>"Merge the faithful home with the faithful school."</h2>
-              <p>Hear from our students about their experience with American Heritage Online and how it has transformed their education journey.</p>
-            </div>
           </div>
         </div>
       </section>

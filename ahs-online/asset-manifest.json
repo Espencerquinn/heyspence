@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/ahs-online/static/css/main.f0bc74e5.css",
-    "main.js": "/ahs-online/static/js/main.76681dd7.js",
+    "main.js": "/ahs-online/static/js/main.63be778d.js",
     "index.html": "/ahs-online/index.html",
     "main.f0bc74e5.css.map": "/ahs-online/static/css/main.f0bc74e5.css.map",
-    "main.76681dd7.js.map": "/ahs-online/static/js/main.76681dd7.js.map"
+    "main.63be778d.js.map": "/ahs-online/static/js/main.63be778d.js.map"
   },
   "entrypoints": [
     "static/css/main.f0bc74e5.css",
-    "static/js/main.76681dd7.js"
+    "static/js/main.63be778d.js"
   ]
 }
