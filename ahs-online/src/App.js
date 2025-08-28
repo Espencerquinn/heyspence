@@ -58,6 +58,16 @@ function App() {
   const trendingCourses = [
     {
       id: 1,
+      title: 'Entrepreneurship and AI',
+      instructor: 'With Industry Experts',
+      duration: '2 hours 30 minutes',
+      episodes: '16 lessons',
+      badge: 'New',
+      image: '🤖',
+      description: 'Learn how to build AI-powered businesses and leverage technology for entrepreneurial success.'
+    },
+    {
+      id: 2,
       title: 'Constitutional Studies',
       instructor: 'With Professor David Mitchell',
       duration: '1 hour 45 minutes',
@@ -67,7 +77,7 @@ function App() {
       description: 'Master the foundations of American government and constitutional principles.'
     },
     {
-      id: 2,
+      id: 3,
       title: 'Principles of Leadership',
       instructor: 'With Leadership Experts',
       duration: '2 hours 15 minutes', 
@@ -77,7 +87,7 @@ function App() {
       description: 'Develop essential leadership skills for academic and personal success.'
     },
     {
-      id: 3,
+      id: 4,
       title: 'Literature: Self Governance',
       instructor: 'With Dr. Sarah Johnson',
       duration: '1 hour 30 minutes',
@@ -87,7 +97,7 @@ function App() {
       description: 'Explore classic literature through the lens of personal responsibility.'
     },
     {
-      id: 4,
+      id: 5,
       title: 'Senior Thesis',
       instructor: 'With Research Mentors',
       duration: '3 hours 20 minutes',
@@ -97,7 +107,7 @@ function App() {
       description: 'Complete your capstone research project with expert guidance.'
     },
     {
-      id: 5,
+      id: 6,
       title: 'American Government & Economics',
       instructor: 'With Policy Experts',
       duration: '2 hours 5 minutes',
@@ -107,7 +117,7 @@ function App() {
       description: 'Understand how government and economics shape our daily lives.'
     },
     {
-      id: 6,
+      id: 7,
       title: 'Experiential Learning',
       instructor: 'With Field Specialists',
       duration: '1 hour 50 minutes',
