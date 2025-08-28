@@ -212,8 +212,8 @@ body {
 .form-submit-btn {
   width: 100%;
   padding: 1rem;
-  background: #dc2626;
-  color: white;
+  background: #F79C34;
+  color: black;
   border: none;
   border-radius: 8px;
   font-size: 1.1rem;
@@ -224,7 +224,7 @@ body {
 }
 
 .form-submit-btn:hover {
-  background: #b91c1c;
+  background: #e88a1f;
   transform: translateY(-1px);
 }
 
