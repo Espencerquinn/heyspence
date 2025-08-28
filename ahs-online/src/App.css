@@ -836,6 +836,51 @@ body {
   box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
 }
 
+/* Floating Mentor Chat Popup */
+.mentor-chat-popup {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 50px;
+  box-shadow: 0 4px 20px rgba(220, 38, 38, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  max-width: 280px;
+}
+
+.mentor-chat-popup:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(220, 38, 38, 0.4);
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+}
+
+.mentor-chat-icon {
+  font-size: 1.5rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.mentor-chat-text {
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
 /* Testimonial Section */
 .testimonial-section {
   padding: 4rem 0;
@@ -1561,5 +1606,21 @@ body {
   
   .comparison-cta-btn {
     max-width: none;
+  }
+  
+  /* Mentor Chat Mobile */
+  .mentor-chat-popup {
+    bottom: 1rem;
+    right: 1rem;
+    padding: 0.875rem 1.25rem;
+    max-width: 250px;
+  }
+  
+  .mentor-chat-text {
+    font-size: 0.875rem;
+  }
+  
+  .mentor-chat-icon {
+    font-size: 1.25rem;
   }
 }

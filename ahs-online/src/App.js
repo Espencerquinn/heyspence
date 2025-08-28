@@ -829,6 +829,12 @@ function App() {
           <a href="../" className="back-link">← Back to heyspence.me</a>
         </div>
       </footer>
+
+      {/* Floating Mentor Chat Popup */}
+      <div className="mentor-chat-popup">
+        <div className="mentor-chat-icon">💬</div>
+        <span className="mentor-chat-text">Talk with a course mentor</span>
+      </div>
     </div>
   );
 }
