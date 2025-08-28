@@ -287,7 +287,7 @@ function App() {
               </p>
               
               <form className="lead-capture-form" onSubmit={handleSubmit}>
-                <h3>Ready to get started? Request more info:</h3>
+                <h3>Want to learn more? Request more info:</h3>
                 <div className="form-row">
                   <input
                     type="text"
