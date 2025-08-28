@@ -547,7 +547,7 @@ function App() {
                   {Object.keys(programs).map((programKey) => (
                     <div key={programKey} className="program-column">
                       <button className="comparison-cta-btn" onClick={() => setActiveProgram(programKey)}>
-                        Learn More
+                        Join webinar to learn more
                       </button>
                     </div>
                   ))}
@@ -585,7 +585,7 @@ function App() {
               </div>
 
               <div className="program-cta">
-                <button className="program-cta-btn">Learn More About {programs[activeProgram].name}</button>
+                <button className="program-cta-btn">Join webinar to learn more about {programs[activeProgram].name}</button>
               </div>
             </div>
           )}

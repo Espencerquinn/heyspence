@@ -694,21 +694,21 @@ body {
 }
 
 .program-cta-btn {
-  background: #dc2626;
-  color: white;
+  background: #F79C34;
+  color: black;
   border: none;
-  padding: 1rem 2rem;
   border-radius: 8px;
-  font-size: 1.125rem;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .program-cta-btn:hover {
-  background: #b91c1c;
+  background: #e88a1f;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  box-shadow: 0 4px 12px rgba(247, 156, 52, 0.3);
 }
 
 /* Comparison Table Styles */
@@ -817,11 +817,11 @@ body {
 }
 
 .comparison-cta-btn {
-  background: #dc2626;
-  color: white;
+  background: #F79C34;
+  color: black;
   border: none;
+  border-radius: 8px;
   padding: 0.75rem 1.5rem;
-  border-radius: 6px;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
@@ -831,9 +831,9 @@ body {
 }
 
 .comparison-cta-btn:hover {
-  background: #b91c1c;
+  background: #e88a1f;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+  box-shadow: 0 2px 8px rgba(247, 156, 52, 0.3);
 }
 
 /* Floating Mentor Chat Popup */
