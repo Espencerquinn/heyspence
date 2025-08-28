@@ -83,16 +83,16 @@ body {
 
 .nav-login {
   margin-right: 1rem;
-  background: #3b82f6;
-  color: white;
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
   padding: 0.5rem 1rem;
   border-radius: 8px;
   transition: all 0.3s ease;
 }
 
 .nav-login:hover {
-  background: #2563eb;
-  color: white;
+  background: rgba(59, 130, 246, 0.3);
+  color: #2563eb;
 }
 
 .nav-cta {
