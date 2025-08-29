@@ -5,6 +5,7 @@ function App() {
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [activeProgram, setActiveProgram] = useState('Live');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mentorChatVisible, setMentorChatVisible] = useState(true);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -846,10 +847,18 @@ function App() {
       </footer>
 
       {/* Floating Mentor Chat Popup */}
-      <div className="mentor-chat-popup">
-        <div className="mentor-chat-icon">💬</div>
-        <span className="mentor-chat-text">Talk with a course mentor</span>
-      </div>
+      {mentorChatVisible && (
+        <div className="mentor-chat-popup">
+          <button 
+            className="mentor-chat-close"
+            onClick={() => setMentorChatVisible(false)}
+          >
+            ×
+          </button>
+          <div className="mentor-chat-icon">💬</div>
+          <span className="mentor-chat-text">Talk with a course mentor</span>
+        </div>
+      )}
     </div>
   );
 }

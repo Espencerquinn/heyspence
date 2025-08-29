@@ -890,7 +890,9 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   z-index: 1000;
-  max-width: 280px;
+  max-width: 300px;
+  min-width: 250px;
+  position: relative;
 }
 
 .mentor-chat-popup:hover {
@@ -917,6 +919,33 @@ body {
   font-weight: 600;
   font-size: 0.95rem;
   white-space: nowrap;
+  flex: 1;
+}
+
+.mentor-chat-close {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: white;
+  color: #dc2626;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  z-index: 1001;
+}
+
+.mentor-chat-close:hover {
+  background: #f8f9fa;
+  transform: scale(1.1);
 }
 
 /* Testimonial Section */
@@ -1752,7 +1781,8 @@ body {
     bottom: 1rem;
     right: 1rem;
     padding: 0.875rem 1.25rem;
-    max-width: 250px;
+    max-width: 280px;
+    min-width: 220px;
   }
   
   .mentor-chat-text {
@@ -1761,6 +1791,14 @@ body {
   
   .mentor-chat-icon {
     font-size: 1.25rem;
+  }
+  
+  .mentor-chat-close {
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    top: -6px;
+    right: -6px;
   }
 }
 
@@ -1794,11 +1832,20 @@ body {
     bottom: 0.75rem;
     right: 0.75rem;
     padding: 0.75rem 1rem;
-    max-width: 200px;
+    max-width: 240px;
+    min-width: 200px;
   }
   
   .mentor-chat-text {
     font-size: 0.8rem;
+  }
+  
+  .mentor-chat-close {
+    width: 18px;
+    height: 18px;
+    font-size: 12px;
+    top: -5px;
+    right: -5px;
   }
   
   .course-card {
