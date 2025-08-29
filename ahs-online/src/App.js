@@ -4,6 +4,7 @@ import './App.css';
 function App() {
   const [expandedFaq, setExpandedFaq] = useState(null);
   const [activeProgram, setActiveProgram] = useState('Live');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -259,18 +260,28 @@ function App() {
       {/* Navigation */}
       <nav className="navbar">
         <div className="nav-container">
-          <div className="nav-logo" onClick={() => window.location.href = '/'}>
+          <div className="nav-logo">
             <img src="/ahs-logo.png" alt="American Heritage Online" className="logo-image" />
           </div>
           <div className="nav-links">
-            <a href="#">About</a>
-            <a href="#">Courses</a>
-            <a href="#">Admissions</a>
-            <a href="#">Support</a>
             <a href="#" className="nav-login">Login</a>
-            <button className="nav-cta">Reserve Your Spot</button>
+            <button className="nav-cta">Get Started</button>
           </div>
+          <button 
+            className="mobile-menu-toggle"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
         </div>
+        {mobileMenuOpen && (
+          <div className="mobile-menu">
+            <a href="#" className="mobile-nav-link">Login</a>
+            <button className="mobile-nav-cta">Get Started</button>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section with Lead Capture */}
