@@ -859,7 +859,7 @@ function App() {
           ×
         </button>
         <div className="mentor-chat-icon">💬</div>
-        <span className="mentor-chat-text">Talk with a course mentor</span>
+        <span className="mentor-chat-text">Talk with a parent ambassador</span>
       </div>
     </div>
   );
