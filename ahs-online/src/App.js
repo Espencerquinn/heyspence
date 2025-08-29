@@ -265,8 +265,12 @@ function App() {
             <img src="/ahs-logo.png" alt="American Heritage Online" className="logo-image" />
           </div>
           <div className="nav-links">
+            <a href="#">About</a>
+            <a href="#">Courses</a>
+            <a href="#">Admissions</a>
+            <a href="#">Support</a>
             <a href="#" className="nav-login">Login</a>
-            <button className="nav-cta">Get Started</button>
+            <button className="nav-cta">Reserve Your Spot</button>
           </div>
           <button 
             className="mobile-menu-toggle"
