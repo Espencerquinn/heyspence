@@ -851,18 +851,16 @@ function App() {
       </footer>
 
       {/* Floating Mentor Chat Popup */}
-      {mentorChatVisible && (
-        <div className="mentor-chat-popup">
-          <button 
-            className="mentor-chat-close"
-            onClick={() => setMentorChatVisible(false)}
-          >
-            ×
-          </button>
-          <div className="mentor-chat-icon">💬</div>
-          <span className="mentor-chat-text">Talk with a course mentor</span>
-        </div>
-      )}
+      <div className="mentor-chat-popup">
+        <button 
+          className="mentor-chat-close"
+          onClick={() => setMentorChatVisible(false)}
+        >
+          ×
+        </button>
+        <div className="mentor-chat-icon">💬</div>
+        <span className="mentor-chat-text">Talk with a course mentor</span>
+      </div>
     </div>
   );
 }

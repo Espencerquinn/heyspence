@@ -876,7 +876,7 @@ body {
 
 /* Floating Mentor Chat Popup */
 .mentor-chat-popup {
-  position: fixed;
+  position: fixed !important;
   bottom: 2rem;
   right: 2rem;
   background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
@@ -884,15 +884,16 @@ body {
   padding: 1rem 1.5rem;
   border-radius: 50px;
   box-shadow: 0 4px 20px rgba(220, 38, 38, 0.3);
-  display: flex;
+  display: flex !important;
   align-items: center;
   gap: 0.75rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  z-index: 1000;
+  z-index: 9999 !important;
   max-width: 300px;
   min-width: 250px;
-  position: relative;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .mentor-chat-popup:hover {
