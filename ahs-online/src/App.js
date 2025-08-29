@@ -279,7 +279,11 @@ function App() {
         {mobileMenuOpen && (
           <div className="mobile-menu">
             <a href="#" className="mobile-nav-link">Login</a>
-            <button className="mobile-nav-cta">Get Started</button>
+            <button className="mobile-nav-cta">Reserve Your Spot</button>
+            <a href="#" className="mobile-nav-link">About</a>
+            <a href="#" className="mobile-nav-link">Courses</a>
+            <a href="#" className="mobile-nav-link">Admissions</a>
+            <a href="#" className="mobile-nav-link">Support</a>
           </div>
         )}
       </nav>
