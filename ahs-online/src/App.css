@@ -919,8 +919,9 @@ body {
 .mentor-chat-text {
   font-weight: 600;
   font-size: 0.95rem;
-  white-space: nowrap;
+  white-space: normal;
   flex: 1;
+  line-height: 1.3;
 }
 
 .mentor-chat-close {
@@ -1782,12 +1783,12 @@ body {
     bottom: 1rem;
     right: 1rem;
     padding: 0.875rem 1.25rem;
-    max-width: 280px;
-    min-width: 220px;
+    max-width: 320px;
+    min-width: 260px;
   }
   
   .mentor-chat-text {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
   }
   
   .mentor-chat-icon {
@@ -1833,12 +1834,12 @@ body {
     bottom: 0.75rem;
     right: 0.75rem;
     padding: 0.75rem 1rem;
-    max-width: 240px;
-    min-width: 200px;
+    max-width: 280px;
+    min-width: 240px;
   }
   
   .mentor-chat-text {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
   
   .mentor-chat-close {
