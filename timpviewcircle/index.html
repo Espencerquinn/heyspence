@@ -21,14 +21,21 @@
                 <p class="hero-subtitle">Own your slice of heaven in Utah's Heber Valley - two exclusive lots with unbeatable access to recreation, shopping, and year-round adventure.</p>
             </div>
             <div class="hero-form">
-                <form class="lead-capture-form" action="#" method="POST">
+                <form class="lead-capture-form" action="#" method="POST" id="leadForm">
                     <h3 class="form-title">Get More Information</h3>
-                    <div class="form-row">
+                    <div class="form-group">
                         <input type="text" id="name" name="name" placeholder="Full Name" required>
-                        <input type="email" id="email" name="email" placeholder="Email Address" required>
+                        <div class="error-message" id="name-error"></div>
                     </div>
-                    <div class="form-row">
+                    <div class="form-group">
+                        <input type="email" id="email" name="email" placeholder="Email Address" required>
+                        <div class="error-message" id="email-error"></div>
+                    </div>
+                    <div class="form-group">
                         <input type="tel" id="phone" name="phone" placeholder="Phone Number" required>
+                        <div class="error-message" id="phone-error"></div>
+                    </div>
+                    <div class="form-group">
                         <select id="interest" name="interest" required>
                             <option value="">I'm interested in...</option>
                             <option value="lot1">Lot 1</option>
@@ -36,6 +43,7 @@
                             <option value="lot3">Lot 3</option>
                             <option value="general">General Information</option>
                         </select>
+                        <div class="error-message" id="interest-error"></div>
                     </div>
                     <button type="submit" class="form-submit">Get Information</button>
                 </form>
@@ -170,8 +178,111 @@
     </footer>
 
     <script>
+        // Form validation functions
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function validateUSPhone(phone) {
+            // Remove all non-digit characters
+            const cleanPhone = phone.replace(/\D/g, '');
+            
+            // Check if it's a valid US phone number (10 digits, optionally starting with 1)
+            if (cleanPhone.length === 10) {
+                return /^[2-9]\d{2}[2-9]\d{2}\d{4}$/.test(cleanPhone);
+            } else if (cleanPhone.length === 11 && cleanPhone[0] === '1') {
+                return /^1[2-9]\d{2}[2-9]\d{2}\d{4}$/.test(cleanPhone);
+            }
+            return false;
+        }
+
+        function showError(fieldId, message) {
+            const errorElement = document.getElementById(fieldId + '-error');
+            const inputElement = document.getElementById(fieldId);
+            errorElement.textContent = message;
+            inputElement.style.borderColor = '#dc2626';
+        }
+
+        function clearError(fieldId) {
+            const errorElement = document.getElementById(fieldId + '-error');
+            const inputElement = document.getElementById(fieldId);
+            errorElement.textContent = '';
+            inputElement.style.borderColor = '#e2e8f0';
+        }
+
         // Gallery and Lightbox functionality
         document.addEventListener('DOMContentLoaded', function() {
+            // Form validation
+            const form = document.getElementById('leadForm');
+            const nameField = document.getElementById('name');
+            const emailField = document.getElementById('email');
+            const phoneField = document.getElementById('phone');
+            const interestField = document.getElementById('interest');
+
+            // Real-time validation
+            emailField.addEventListener('blur', function() {
+                if (this.value && !validateEmail(this.value)) {
+                    showError('email', 'Please enter a valid email address');
+                } else {
+                    clearError('email');
+                }
+            });
+
+            phoneField.addEventListener('blur', function() {
+                if (this.value && !validateUSPhone(this.value)) {
+                    showError('phone', 'Please enter a valid US phone number');
+                } else {
+                    clearError('phone');
+                }
+            });
+
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                let isValid = true;
+
+                // Validate all fields
+                if (!nameField.value.trim()) {
+                    showError('name', 'Full name is required');
+                    isValid = false;
+                } else {
+                    clearError('name');
+                }
+
+                if (!emailField.value.trim()) {
+                    showError('email', 'Email address is required');
+                    isValid = false;
+                } else if (!validateEmail(emailField.value)) {
+                    showError('email', 'Please enter a valid email address');
+                    isValid = false;
+                } else {
+                    clearError('email');
+                }
+
+                if (!phoneField.value.trim()) {
+                    showError('phone', 'Phone number is required');
+                    isValid = false;
+                } else if (!validateUSPhone(phoneField.value)) {
+                    showError('phone', 'Please enter a valid US phone number');
+                    isValid = false;
+                } else {
+                    clearError('phone');
+                }
+
+                if (!interestField.value) {
+                    showError('interest', 'Please select your interest');
+                    isValid = false;
+                } else {
+                    clearError('interest');
+                }
+
+                if (isValid) {
+                    // Here you would typically send the data to your server
+                    alert('Form submitted successfully! We will contact you soon.');
+                    form.reset();
+                }
+            });
             const galleryImages = document.querySelectorAll('.gallery-image');
             const lightbox = document.getElementById('lightbox');
             const lightboxImage = document.getElementById('lightbox-image');
