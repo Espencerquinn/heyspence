@@ -44,6 +44,41 @@
     </header>
 
     <main class="main-content">
+        <section class="gallery-section">
+            <div class="container">
+                <h2 class="section-title">Property Gallery</h2>
+                <div class="gallery-container">
+                    <div class="gallery-track">
+                        <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=300&fit=crop" alt="Mountain View Property" class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop" alt="Scenic Landscape" class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=400&h=300&fit=crop" alt="Mountain Vista" class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop" alt="Valley View" class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop" alt="Forest Path" class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop" alt="Sunset Mountains" class="gallery-image">
+                        <!-- Duplicate images for seamless loop -->
+                        <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=300&fit=crop" alt="Mountain View Property" class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop" alt="Scenic Landscape" class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=400&h=300&fit=crop" alt="Mountain Vista" class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop" alt="Valley View" class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop" alt="Forest Path" class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop" alt="Sunset Mountains" class="gallery-image">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lightbox Modal -->
+        <div id="lightbox" class="lightbox">
+            <div class="lightbox-content">
+                <span class="lightbox-close">&times;</span>
+                <img id="lightbox-image" src="" alt="">
+                <div class="lightbox-nav">
+                    <button id="lightbox-prev">&lt;</button>
+                    <button id="lightbox-next">&gt;</button>
+                </div>
+            </div>
+        </div>
+
         <section id="lots" class="lots-section">
             <div class="container">
                 <h2 class="section-title">Available Lots</h2>
@@ -133,5 +168,78 @@
             <p>&copy; 2024 Timpview Circle Development. All rights reserved.</p>
         </div>
     </footer>
+
+    <script>
+        // Gallery and Lightbox functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const galleryImages = document.querySelectorAll('.gallery-image');
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImage = document.getElementById('lightbox-image');
+            const lightboxClose = document.querySelector('.lightbox-close');
+            const lightboxPrev = document.getElementById('lightbox-prev');
+            const lightboxNext = document.getElementById('lightbox-next');
+            
+            let currentImageIndex = 0;
+            const uniqueImages = Array.from(galleryImages).slice(0, 6); // Only first 6 images (before duplicates)
+            
+            // Open lightbox when image is clicked
+            galleryImages.forEach((image, index) => {
+                image.addEventListener('click', function() {
+                    currentImageIndex = index % 6; // Handle duplicates
+                    openLightbox(currentImageIndex);
+                });
+            });
+            
+            // Close lightbox
+            lightboxClose.addEventListener('click', closeLightbox);
+            lightbox.addEventListener('click', function(e) {
+                if (e.target === lightbox) {
+                    closeLightbox();
+                }
+            });
+            
+            // Navigation
+            lightboxPrev.addEventListener('click', function() {
+                currentImageIndex = (currentImageIndex - 1 + uniqueImages.length) % uniqueImages.length;
+                updateLightboxImage();
+            });
+            
+            lightboxNext.addEventListener('click', function() {
+                currentImageIndex = (currentImageIndex + 1) % uniqueImages.length;
+                updateLightboxImage();
+            });
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                if (lightbox.style.display === 'block') {
+                    if (e.key === 'Escape') {
+                        closeLightbox();
+                    } else if (e.key === 'ArrowLeft') {
+                        lightboxPrev.click();
+                    } else if (e.key === 'ArrowRight') {
+                        lightboxNext.click();
+                    }
+                }
+            });
+            
+            function openLightbox(index) {
+                currentImageIndex = index;
+                updateLightboxImage();
+                lightbox.style.display = 'block';
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            }
+            
+            function closeLightbox() {
+                lightbox.style.display = 'none';
+                document.body.style.overflow = 'auto'; // Restore scrolling
+            }
+            
+            function updateLightboxImage() {
+                const selectedImage = uniqueImages[currentImageIndex];
+                lightboxImage.src = selectedImage.src;
+                lightboxImage.alt = selectedImage.alt;
+            }
+        });
+    </script>
 </body>
 </html>
