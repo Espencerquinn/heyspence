@@ -253,8 +253,8 @@ body {
     position: absolute;
     bottom: 1rem;
     right: 1rem;
-    background: #dc2626;
-    color: white;
+    background: #FFD700;
+    color: #333;
     border: none;
     border-radius: 8px;
     padding: 0.75rem 1.25rem;
@@ -263,12 +263,14 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     text-transform: lowercase;
+    z-index: 10;
+    display: block;
 }
 
 .lot-price-btn:hover {
-    background: #b91c1c;
+    background: #FFC107;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
 }
 
 .lot-size {
