@@ -41,12 +41,14 @@ body {
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('mountain-bg.jpg') center/cover no-repeat;
+    /* Background now handled by ::before and ::after for crossfade */
     color: white;
     padding: 4rem 0;
     display: flex;
     align-items: center;
     min-height: 80vh;
+    position: relative;
+    overflow: hidden;
 }
 
 .hero-content {
@@ -57,6 +59,53 @@ body {
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
     align-items: center;
+    position: relative; /* keep above background layers */
+    z-index: 1;
+}
+
+/* Crossfading background images for hero */
+.hero::before,
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: 0;
+    z-index: 0;
+    animation-duration: 10s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+}
+
+/* First image visible initially */
+.hero::before {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('mountain-bg.jpg');
+    animation-name: fadeFirst;
+}
+
+/* Second image fades in after ~3 seconds */
+.hero::after {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('Golden Hour.jpg');
+    animation-name: fadeSecond;
+}
+
+/* 10s cycle: 3s hold, 2s fade, 3s hold, 2s fade back */
+@keyframes fadeFirst {
+    0% { opacity: 1; }
+    30% { opacity: 1; }
+    50% { opacity: 0; }
+    80% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes fadeSecond {
+    0% { opacity: 0; }
+    30% { opacity: 0; }
+    50% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
 }
 
 .hero-text {
@@ -420,6 +469,19 @@ body {
 .lot-status.sold {
     background: #f8d7da;
     color: #721c24;
+}
+
+/* Lot Overview Image */
+.lot-overview-container {
+    margin-top: 3rem;
+    text-align: center;
+}
+
+.lot-overview-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 /* Features Section */

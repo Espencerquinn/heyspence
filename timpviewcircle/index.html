@@ -18,7 +18,7 @@
         <div class="hero-content">
             <div class="hero-text">
                 <h1 class="hero-title">Premium Charleston Lots with Breathtaking Views of Mt. Timpanogos</h1>
-                <p class="hero-subtitle">Only 2 exclusive lots available — submit your offer before these lots are gone.</p>
+                <p class="hero-subtitle">3 exclusive lots available. Submit your offer before these lots are gone.</p>
             </div>
             <div class="hero-form">
                 <form class="lead-capture-form" action="#" method="POST" id="leadForm">
@@ -93,6 +93,18 @@
                 <div class="lots-grid">
                     <div class="lot-card">
                         <div class="lot-header">
+                            <h3>Lot 1</h3>
+                        </div>
+                        <div class="lot-details">
+                            <p class="lot-size">2.49 acres</p>
+                            <p class="lot-description">Prime location, home built, move in ready. Utilities connected. Private well. Private road access with horse shoe driveway. Excellent mountain views and quick access to highway.</p>
+                        </div>
+                        <div class="lot-status available">Available</div>
+                        <button class="lot-price-btn">contact for pricing info</button>
+                    </div>
+
+                    <div class="lot-card">
+                        <div class="lot-header">
                             <h3>Lot 2</h3>
                         </div>
                         <div class="lot-details">
@@ -114,6 +126,10 @@
                         <div class="lot-status available">Available</div>
                         <button class="lot-price-btn">contact for pricing info</button>
                     </div>
+                </div>
+                
+                <div class="lot-overview-container">
+                    <img src="Lot Overview.png" alt="Lot Overview Map" class="lot-overview-image">
                 </div>
             </div>
         </section>
@@ -278,11 +294,51 @@
                 }
 
                 if (isValid) {
-                    // Here you would typically send the data to your server
-                    alert('Form submitted successfully! We will contact you soon.');
-                    form.reset();
+                    // Send data to Google Sheets
+                    sendToGoogleSheets({
+                        name: nameField.value.trim(),
+                        email: emailField.value.trim(),
+                        phone: phoneField.value.trim(),
+                        interest: interestField.value
+                    });
                 }
             });
+
+            // Function to send form data to Google Sheets
+            async function sendToGoogleSheets(formData) {
+                const submitButton = document.querySelector('.form-submit');
+                const originalText = submitButton.textContent;
+                
+                // Disable button and show loading state
+                submitButton.disabled = true;
+                submitButton.textContent = 'Sending...';
+                
+                // Google Apps Script Web App URL
+                const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxI1SnlTSfnuDoYTNacWnZaB19GE55gw1bKcO6YZh1s6zRyEeZZOy6XxvWuusPFM_YNCA/exec';
+                
+                try {
+                    const response = await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    // Show success message
+                    alert('Thank you! Your information has been submitted successfully. We will contact you soon.');
+                    form.reset();
+                    
+                } catch (error) {
+                    console.error('Error submitting form:', error);
+                    alert('There was an error submitting your information. Please try again or contact us directly.');
+                } finally {
+                    // Re-enable button
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalText;
+                }
+            }
             const galleryImages = document.querySelectorAll('.gallery-image');
             const lightbox = document.getElementById('lightbox');
             const lightboxImage = document.getElementById('lightbox-image');

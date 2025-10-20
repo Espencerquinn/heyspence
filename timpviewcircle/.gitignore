@@ -1,0 +1,17 @@
+# General
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts (none expected for static site, but safe to ignore)
+dist/
+build/
+.cache/
+.tmp/
+
+# Node modules (if added later)
+node_modules/
