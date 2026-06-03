@@ -134,6 +134,14 @@ export function SellPlanner() {
     setState((s) => ({ ...s, [key]: value }))
   }
 
+  // Snap the timeline (and thus the implied rate) to a preset.
+  // Clamps to at least 1 unit/month so a small-holdings + long-timeline
+  // combination still produces a sane forecast.
+  function setMonths(m: number) {
+    const newRate = Math.max(1, Math.ceil(state.holdingsUnits / m))
+    update('unitsPerMonth', newRate)
+  }
+
   function applyLiveSpot() {
     if (!live) return
     update('todaysSpot', Math.round(live.pricePerOz * 100) / 100)
@@ -219,16 +227,31 @@ export function SellPlanner() {
             className="w-full accent-cyan-400"
           />
           <div className="flex items-center justify-between text-[11px] text-zinc-500">
-            <span>1</span>
-            <button
-              type="button"
-              onClick={() => update('unitsPerMonth', Math.max(1, Math.round(state.holdingsUnits / 12)))}
-              className="underline-offset-4 hover:underline"
-            >
-              Liquidate in 12 months
-            </button>
-            <span>{Math.max(50, state.holdingsUnits || 1000).toLocaleString()}</span>
+            <span>1 / mo</span>
+            <span>{Math.max(50, state.holdingsUnits || 1000).toLocaleString()} / mo</span>
           </div>
+        </Field>
+
+        {/* Two-way link with the sell rate. Editing months recomputes
+            units/month so user can think in either dimension. */}
+        <Field label="Sell over (months)">
+          <div className="flex items-stretch gap-2">
+            <NumberInput
+              value={impliedMonths(state.holdingsUnits, state.unitsPerMonth)}
+              onChange={(v) => {
+                const m = Math.max(1, Math.round(v))
+                const newRate = Math.max(1, Math.ceil(state.holdingsUnits / m))
+                update('unitsPerMonth', newRate)
+              }}
+              step={1}
+            />
+            <PresetButton label="6 mo" onClick={() => setMonths(6)} />
+            <PresetButton label="12 mo" onClick={() => setMonths(12)} />
+            <PresetButton label="24 mo" onClick={() => setMonths(24)} />
+          </div>
+          <p className="text-[11px] text-zinc-500">
+            How long until the last unit is sold. Linked to the sell rate above.
+          </p>
         </Field>
 
         <Field label="Today's silver spot ($/oz)">
@@ -406,4 +429,23 @@ function NumberInput({
       className="w-full rounded-md border border-white/15 bg-white/5 px-3 py-2 text-sm font-mono tabular-nums text-zinc-100"
     />
   )
+}
+
+function PresetButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="shrink-0 rounded-md border border-white/15 px-2.5 text-xs text-zinc-300 hover:bg-white/5"
+    >
+      {label}
+    </button>
+  )
+}
+
+/** Months it would take to sell out at the given monthly rate. Rounds
+ *  up so a residual partial month still shows as a whole month. */
+function impliedMonths(holdings: number, ratePerMonth: number): number {
+  if (ratePerMonth <= 0 || holdings <= 0) return 0
+  return Math.ceil(holdings / ratePerMonth)
 }
