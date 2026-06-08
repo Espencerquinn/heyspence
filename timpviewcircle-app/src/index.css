@@ -1,0 +1,24 @@
+:root { font-family: system-ui, sans-serif; }
+body { margin: 0; background: #0f1115; color: #e7e9ee; }
+.signin { display: grid; place-items: center; min-height: 100vh; gap: 1rem; text-align: center; }
+.signin button { padding: .6rem 1rem; font-size: 1rem; cursor: pointer; }
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: .75rem 1rem; border-bottom: 1px solid #232733; }
+.board { display: flex; gap: .75rem; padding: 1rem; overflow-x: auto; align-items: flex-start; }
+.column { background: #161a22; border-radius: 10px; min-width: 240px; padding: .5rem; }
+.column--over { outline: 2px dashed #4f7cff; }
+.column__title { font-size: .85rem; text-transform: uppercase; letter-spacing: .04em; display: flex; justify-content: space-between; color: #9aa3b2; }
+.column__cards { display: flex; flex-direction: column; gap: .5rem; min-height: 40px; }
+.lead-card { background: #1f2533; border-radius: 8px; padding: .6rem; cursor: grab; }
+.lead-card__name { font-weight: 600; }
+.lead-card__meta, .lead-card__time { font-size: .8rem; color: #9aa3b2; }
+.drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; justify-content: flex-end; }
+.drawer { width: min(420px, 100%); background: #161a22; height: 100%; padding: 1.25rem; overflow-y: auto; }
+.drawer__close { float: right; background: none; border: none; color: #e7e9ee; font-size: 1.5rem; cursor: pointer; }
+.lead-fields { display: grid; grid-template-columns: auto 1fr; gap: .25rem .75rem; }
+.lead-fields dt { color: #9aa3b2; }
+.add-note textarea { width: 100%; min-height: 64px; background: #0f1115; color: inherit; border: 1px solid #232733; border-radius: 6px; padding: .5rem; }
+.add-note button { margin-top: .4rem; padding: .4rem .8rem; cursor: pointer; }
+.notes { list-style: none; padding: 0; display: flex; flex-direction: column; gap: .6rem; margin-top: 1rem; }
+.note { background: #1f2533; border-radius: 8px; padding: .5rem .6rem; }
+.note__head { display: flex; justify-content: space-between; font-size: .8rem; color: #9aa3b2; }
+.notes-empty { color: #9aa3b2; }
