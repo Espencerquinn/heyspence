@@ -23,7 +23,7 @@ async function sendInstantEmail(lead) {
     'carissaquinn02@gmail.com',
     'morganeadsrealestate@gmail.com',
   ];
-  const appUrl = 'https://app.timpviewcircle.com';
+  const appUrl = 'https://app.timpvistacircle.com';
   await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -31,7 +31,7 @@ async function sendInstantEmail(lead) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Timpview Circle <info@timpviewcircle.com>',
+      from: 'Timp Vista Circle <info@timpvistacircle.com>',
       to: recipients,
       reply_to: 'spencer@heyspence.me',
       subject: `New lead: ${lead.name} (${lead.interest})`,
