@@ -41,6 +41,18 @@ h1, h2, h3 { font-family: 'Cormorant Garamond', Georgia, serif; letter-spacing: 
 .btn--primary:hover { background: var(--sage-700); }
 .btn--google { background: #fff; color: var(--ink-900); border-color: var(--sand-200); }
 .btn--google:hover { background: var(--sand-50); }
+.btn--ghost { width: auto; background: none; border: 1px solid var(--sand-200); color: var(--ink-700); min-height: 40px; }
+.btn--ghost:hover { background: var(--sand-100); }
+
+/* lead detail edit form */
+.edit-fields { display: flex; flex-direction: column; gap: .6rem; margin: .25rem 0 1rem; }
+.edit-fields label { display: flex; flex-direction: column; gap: .25rem; font-size: .82rem; color: var(--ink-700); }
+.edit-fields input, .edit-fields select {
+  font: inherit; color: var(--ink-900); background: #fff;
+  border: 1px solid var(--sand-200); border-radius: 8px; padding: .5rem .6rem; min-height: 42px;
+}
+.edit-actions { display: flex; gap: .5rem; margin-top: .25rem; }
+.edit-actions .btn { width: auto; padding: 0 1.1rem; }
 .signin__divider { display: flex; align-items: center; gap: .75rem; color: var(--ink-700); margin: 1.1rem 0; font-size: .8rem; }
 .signin__divider::before, .signin__divider::after { content: ''; flex: 1; height: 1px; background: var(--sand-200); }
 .signin input {
