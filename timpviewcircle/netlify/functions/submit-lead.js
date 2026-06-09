@@ -63,9 +63,30 @@ export async function handler(event) {
   }
 
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+  const { name, email, phone, interest } = result.value;
+
+  // Dedupe by email: if this person already has a lead, append a note to the
+  // existing lead and bump it to the top instead of creating a second card.
+  // No instant email on repeats; the lead's current status is preserved.
+  const { data: existing } = await supabase
+    .from('leads').select('id').eq('email', email).limit(1);
+
+  if (existing && existing.length > 0) {
+    const leadId = existing[0].id;
+    const when = new Date().toLocaleString('en-US', { timeZone: 'America/Denver' });
+    await supabase.from('notes').insert({
+      lead_id: leadId,
+      author_email: 'form@timpvistacircle.com',
+      author_name: 'Website form',
+      body: `Re-submitted ${when} MT — interest: ${interest}`,
+    });
+    await supabase.from('leads').update({ updated_at: new Date().toISOString() }).eq('id', leadId);
+    return { statusCode: 200, body: JSON.stringify({ ok: true, stored: true, duplicate: true }) };
+  }
+
   const { data, error } = await supabase
     .from('leads')
-    .insert(result.value)
+    .insert({ name, email, phone, interest })
     .select('id, name, email, phone, interest, created_at')
     .single();
 
