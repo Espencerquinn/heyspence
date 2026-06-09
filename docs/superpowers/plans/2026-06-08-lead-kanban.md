@@ -1508,3 +1508,35 @@ git commit -m "feat(digest): pg_cron schedule at 13:00 and 14:00 UTC (7am MT)"
 **Placeholder scan:** Intentional, clearly-marked substitutions only: `<your-project-ref>`, `GFORM_*`/`REPLACE_*` Google Form IDs (needed from you at build), `<PROJECT_REF>`/`<ANON_KEY>` in cron SQL. Each has a verify step that fails loudly if left unsubstituted. No vague "add error handling"-style gaps.
 
 **Type consistency:** `validateLead`/`handler` (Task 2.2) consistent. `Status`/`STATUSES`/`Lead`/`Note` used identically across app tasks. `StatusChange`/`NoteRow`/`buildDigest` consistent between 4.1 and 4.3. `is_team_member()` defined in 1.2, reused in 4.2. `status_history` columns match between 4.2 and the 4.3 query.
+
+---
+
+## Amendment — 2026-06-08 (post-build discoveries)
+
+Three findings during execution changed the integration approach. The DB/RLS/board/digest work (Phases 1, 3, 4) stands; capture (Phase 2) and deploy (Phase 5) are revised.
+
+**Discoveries**
+1. **Canonical domain is `timpvistacircle.com`** (not `timpviewcircle.com`). All email/app/DNS use vista. Done in code.
+2. **The live site is a separate repo** — `~/Desktop/Dev Projects/timp-view-circle` (GitHub `Espencerquinn/timp-vista-circle`), a Vite/React app — NOT the on-disk `heyspence.me/timpviewcircle` static folder. Both forms (inquiry + offer) submit through `src/lib/lead-form.ts` to a **Google Apps Script** (`script.google.com/macros/s/AKfyc…/exec`) that appends to the sheet.
+3. The original Netlify-function capture assumed the static site; obsolete now.
+
+**Revised capture (replaces Tasks 2.1–2.3)**
+- Move lead-insert into a **Supabase Edge Function `capture-lead`** (host-agnostic; backend already lives in Supabase). The Netlify `submit-lead.js` is retired (kept in history).
+- **Apps Script forwards** every submission to `capture-lead` after writing the sheet (the sheet stays the automatic backup). The Apps Script is the single chokepoint for both forms — no front-end edit needed for capture. User pastes ~10 lines into the script editor.
+- `capture-lead` handles `formType: 'lead' | 'offer'`, validation, honeypot, and **dedupe by email**.
+
+**Offers (new feature)**
+- `leads.kind` enum `'inquiry' | 'offer'` (default `inquiry`); `leads.offer_details jsonb` (amount, earnest, financing, desired_closing, message, attachment_url).
+- Offer submissions: if email is new → create `kind='offer'` lead; if email exists → **promote** that lead to `kind='offer'`, fill `offer_details`, add a note with the offer. **Offers always send the instant email** (never suppressed as duplicate).
+- Board: a **dedicated "Offers" lane** pinned far left, holding `kind='offer'` leads not yet Closed/Lost. Offer card shows **lot (interest) prominently**, amount, financing. Dragging to Closed/Lost resolves it (leaves the lane). Full offer details in the detail drawer.
+
+**Magic-link login (new)**
+- Pre-provision the 3 allowlisted users as confirmed Supabase auth users (idempotent) so `auth.admin.generateLink({type:'magiclink'})` works.
+- Instant + digest emails are sent **per-recipient**, each embedding that person's one-click magic link as the "Open the board" button. Google sign-in remains on the footer button. Caveat (accepted): a forwarded email could grant access; keep to the 3 addresses.
+
+**Live-site footer (new)**
+- Add an **"Admin Login"** link in `timp-view-circle/src/components/site-footer.tsx` → `https://app.timpvistacircle.com`. Work on a branch; nothing auto-deploys.
+
+**Revised deploy (replaces Phase 5)**
+- Board app → its own Netlify site at `app.timpvistacircle.com`. **Operator drives via CLI/API**: `netlify login` (user) + a scoped Cloudflare DNS API token (user) → operator creates the site, sets env vars, adds the `app` CNAME, sets Supabase auth redirect URLs.
+- Email domain already Resend-verified for `timpvistacircle.com` — no DNS needed for email.

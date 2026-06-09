@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { buildDigest, type StatusChange, type NoteRow } from '../_shared/digest.ts';
-import { sendEmail } from '../_shared/email.ts';
+import { notifyTeam, openBoardButton } from '../_shared/notify.ts';
 
 function denverHour(now: Date): number {
   return Number(new Intl.DateTimeFormat('en-US', {
@@ -42,6 +42,6 @@ Deno.serve(async (req) => {
   }));
 
   const digest = buildDigest(changes, notes);
-  await sendEmail({ subject: digest.subject, html: digest.html });
+  await notifyTeam(digest.subject, (_n, url) => digest.html + openBoardButton(url));
   return new Response(JSON.stringify({ sent: true, subject: digest.subject }), { status: 200 });
 });
