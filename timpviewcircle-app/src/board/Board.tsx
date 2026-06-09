@@ -9,9 +9,26 @@ import { supabase } from '../supabaseClient';
 export function Board() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [open, setOpen] = useState<Lead | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  async function load() { setLeads(await fetchLeads()); }
+  async function load() {
+    setRefreshing(true);
+    try { setLeads(await fetchLeads()); }
+    finally { setRefreshing(false); }
+  }
   useEffect(() => { load(); }, []);
+
+  // Live updates: reload when leads or notes change anywhere (debounced).
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const bump = () => { clearTimeout(timer); timer = setTimeout(load, 400); };
+    const channel = supabase
+      .channel('board-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, bump)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notes' }, bump)
+      .subscribe();
+    return () => { clearTimeout(timer); supabase.removeChannel(channel); };
+  }, []);
 
   async function onDragEnd(e: DragEndEvent) {
     const leadId = String(e.active.id);
@@ -37,7 +54,12 @@ export function Board() {
           <img src="/timp-vista-circle-logo.png" alt="" />
           <span>Timp Vista Circle — Leads</span>
         </div>
-        <button className="topbar__signout" onClick={() => supabase.auth.signOut()}>Sign out</button>
+        <div className="topbar__actions">
+          <button className="topbar__signout" onClick={load} disabled={refreshing}>
+            {refreshing ? 'Refreshing…' : '↻ Refresh'}
+          </button>
+          <button className="topbar__signout" onClick={() => supabase.auth.signOut()}>Sign out</button>
+        </div>
       </header>
       <DndContext onDragEnd={onDragEnd}>
         <div className="board">

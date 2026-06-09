@@ -70,8 +70,10 @@ h1, h2, h3 { font-family: 'Cormorant Garamond', Georgia, serif; letter-spacing: 
 .topbar__brand { display: flex; align-items: center; gap: .6rem; }
 .topbar__brand img { height: 34px; width: auto; }
 .topbar__brand span { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.35rem; }
+.topbar__actions { display: flex; gap: .5rem; }
 .topbar__signout { background: none; border: 1px solid var(--sand-200); border-radius: 8px; padding: .4rem .8rem; cursor: pointer; font: inherit; color: var(--ink-700); }
-.topbar__signout:hover { background: var(--sand-50); }
+.topbar__signout:hover:not(:disabled) { background: var(--sand-50); }
+.topbar__signout:disabled { opacity: .6; cursor: default; }
 
 /* ---- Board ---- */
 .board { display: flex; gap: .85rem; padding: 1.25rem; overflow-x: auto; align-items: flex-start; }
