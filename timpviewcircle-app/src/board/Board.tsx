@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { DndContext, type DragEndEvent } from '@dnd-kit/core';
-import { STATUSES, type Lead, type Status } from '../types';
+import { STATUSES, isActiveOffer, type Lead, type Status } from '../types';
 import { fetchLeads, updateLeadStatus } from '../data/leads';
 import { Column } from './Column';
 import { LeadDetail } from './LeadDetail';
@@ -15,26 +15,32 @@ export function Board() {
 
   async function onDragEnd(e: DragEndEvent) {
     const leadId = String(e.active.id);
-    const newStatus = e.over?.id as Status | undefined;
-    if (!newStatus) return;
+    const target = e.over?.id ? String(e.over.id) : undefined;
+    // The Offers lane isn't a status — dropping there does nothing.
+    if (!target || target === 'Offers' || !STATUSES.includes(target as Status)) return;
+    const newStatus = target as Status;
     const lead = leads.find((l) => l.id === leadId);
     if (!lead || lead.status === newStatus) return;
-    // optimistic update
-    setLeads((prev) => prev.map((l) => l.id === leadId ? { ...l, status: newStatus } : l));
+    setLeads((prev) => prev.map((l) => l.id === leadId ? { ...l, status: newStatus } : l)); // optimistic
     try { await updateLeadStatus(leadId, newStatus); }
-    catch { load(); } // revert from source of truth on failure
+    catch { load(); }
   }
+
+  // Active offers live in the Offers lane; everything else sits in its status column.
+  const activeOffers = leads.filter(isActiveOffer);
+  const inColumn = (s: Status) => leads.filter((l) => !isActiveOffer(l) && l.status === s);
 
   return (
     <div className="app">
       <header className="topbar">
-        <h1>Timpview Circle — Leads</h1>
+        <h1>Timp Vista Circle — Leads</h1>
         <button onClick={() => supabase.auth.signOut()}>Sign out</button>
       </header>
       <DndContext onDragEnd={onDragEnd}>
         <div className="board">
+          <Column id="Offers" title="Offers" offers leads={activeOffers} onOpen={setOpen} />
           {STATUSES.map((s) => (
-            <Column key={s} status={s} leads={leads.filter((l) => l.status === s)} onOpen={setOpen} />
+            <Column key={s} id={s} title={s} leads={inColumn(s)} onOpen={setOpen} />
           ))}
         </div>
       </DndContext>
