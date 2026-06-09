@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { DndContext, type DragEndEvent } from '@dnd-kit/core';
+import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { STATUSES, isActiveOffer, type Lead, type Status } from '../types';
 import { fetchLeads, updateLeadStatus } from '../data/leads';
 import { Column } from './Column';
@@ -10,6 +10,10 @@ export function Board() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [open, setOpen] = useState<Lead | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Require an 8px drag before dragging starts, so a plain click on a card
+  // fires onClick (opens the drawer) instead of being captured as a drag.
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
   async function load() {
     setRefreshing(true);
@@ -61,7 +65,7 @@ export function Board() {
           <button className="topbar__signout" onClick={() => supabase.auth.signOut()}>Sign out</button>
         </div>
       </header>
-      <DndContext onDragEnd={onDragEnd}>
+      <DndContext sensors={sensors} onDragEnd={onDragEnd}>
         <div className="board">
           <Column id="Offers" title="Offers" offers leads={activeOffers} onOpen={setOpen} />
           {STATUSES.map((s) => (
