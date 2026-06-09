@@ -33,8 +33,11 @@ export function Board() {
   return (
     <div className="app">
       <header className="topbar">
-        <h1>Timp Vista Circle — Leads</h1>
-        <button onClick={() => supabase.auth.signOut()}>Sign out</button>
+        <div className="topbar__brand">
+          <img src="/timp-vista-circle-logo.png" alt="" />
+          <span>Timp Vista Circle — Leads</span>
+        </div>
+        <button className="topbar__signout" onClick={() => supabase.auth.signOut()}>Sign out</button>
       </header>
       <DndContext onDragEnd={onDragEnd}>
         <div className="board">

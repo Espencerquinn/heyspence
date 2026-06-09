@@ -13,7 +13,7 @@ export function AddNote({ leadId, onAdded }: { leadId: string; onAdded: () => vo
   return (
     <div className="add-note">
       <textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Add a note…" />
-      <button disabled={saving || !body.trim()} onClick={submit}>
+      <button className="btn btn--primary" disabled={saving || !body.trim()} onClick={submit}>
         {saving ? 'Saving…' : 'Add note'}
       </button>
     </div>
