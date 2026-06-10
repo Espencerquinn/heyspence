@@ -19,3 +19,9 @@ export async function updateLeadFields(
   const { error } = await supabase.from('leads').update(fields).eq('id', id);
   if (error) throw error;
 }
+
+// Deletes the lead and (via cascade) its notes and status history.
+export async function deleteLead(id: string): Promise<void> {
+  const { error } = await supabase.from('leads').delete().eq('id', id);
+  if (error) throw error;
+}

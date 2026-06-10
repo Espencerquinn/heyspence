@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { STATUSES, type Lead, type Note, type Status } from '../types';
 import { fetchNotes } from '../data/notes';
-import { updateLeadFields, updateLeadStatus } from '../data/leads';
+import { updateLeadFields, updateLeadStatus, deleteLead } from '../data/leads';
 import { NotesThread } from './NotesThread';
 import { AddNote } from './AddNote';
 
@@ -98,6 +98,18 @@ export function LeadDetail({ lead, onClose }: { lead: Lead; onClose: () => void 
         <h3>Notes &amp; updates</h3>
         <AddNote leadId={current.id} onAdded={loadNotes} />
         <NotesThread notes={notes} />
+
+        <div className="drawer__danger">
+          <button className="btn btn--danger" disabled={saving}
+            onClick={async () => {
+              if (!confirm(`Delete ${current.name}? This removes the lead and its notes. This can't be undone.`)) return;
+              setSaving(true);
+              try { await deleteLead(current.id); onClose(); }
+              finally { setSaving(false); }
+            }}>
+            Delete lead
+          </button>
+        </div>
       </aside>
     </div>
   );
