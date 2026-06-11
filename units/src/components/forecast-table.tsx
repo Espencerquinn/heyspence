@@ -3,7 +3,9 @@ import { formatMonthLabel } from '../lib/forecast'
 
 interface Props {
   monthlySpot: number[]
-  onChange: (next: number[]) => void
+  /** Override a single month's spot price. Only the edited month is stored,
+   *  so untouched months keep following the growth assumption. */
+  onEdit: (index: number, value: number) => void
   /** How many months from the table to render. We always keep a longer
    *  array under the hood so growth assumptions reach far into the future. */
   visibleMonths: number
@@ -18,15 +20,13 @@ interface Props {
  * (today's spot × annual growth assumption). User can override any cell.
  * Edits propagate immediately.
  */
-export function ForecastTable({ monthlySpot, onChange, visibleMonths, start, title }: Props) {
+export function ForecastTable({ monthlySpot, onEdit, visibleMonths, start, title }: Props) {
   const [expanded, setExpanded] = useState(false)
   const initial = expanded ? Math.min(visibleMonths, monthlySpot.length) : Math.min(12, visibleMonths)
   const rows = monthlySpot.slice(0, initial)
 
   function update(idx: number, val: number) {
-    const next = [...monthlySpot]
-    next[idx] = val
-    onChange(next)
+    onEdit(idx, val)
   }
 
   return (

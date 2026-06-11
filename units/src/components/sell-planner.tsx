@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { COINS, getCoin } from '../lib/coins'
 import {
   buildLinearForecast,
@@ -21,7 +21,12 @@ import {
   type ScenarioPreset,
 } from '../lib/scenarios'
 import { ForecastTable } from './forecast-table'
-import { ProceedsChart, type ChartScenario } from './proceeds-chart'
+import type { ChartScenario } from './proceeds-chart'
+
+// Recharts is heavy and the chart is below the fold — load it on demand.
+const ProceedsChart = lazy(() =>
+  import('./proceeds-chart').then((m) => ({ default: m.ProceedsChart })),
+)
 import { ScenarioBar } from './scenario-bar'
 import { ScenarioCard } from './scenario-card'
 
@@ -416,7 +421,13 @@ export function SellPlanner() {
       <section className="mt-6">
         <ForecastTable
           monthlySpot={activeMonthlySpot}
-          onChange={(next) => updateActive('monthlySpotOverrides', next)}
+          onEdit={(index, value) => {
+            // Store ONLY the edited month so the rest keep tracking the growth
+            // curve (avoids freezing the whole forecast on a single edit).
+            const next = active.monthlySpotOverrides.slice()
+            next[index] = value
+            updateActive('monthlySpotOverrides', next)
+          }}
           start={startMonth}
           title={`${active.name} · monthly spot forecast`}
           visibleMonths={
@@ -438,7 +449,15 @@ export function SellPlanner() {
 
       {/* Multi-scenario chart */}
       <section className="mt-6">
-        <ProceedsChart scenarios={chartScenarios} activeId={activeId} start={startMonth} />
+        <Suspense
+          fallback={
+            <div className="flex h-[360px] items-center justify-center rounded-md border border-white/10 bg-white/[0.02] text-sm text-zinc-500">
+              Loading chart…
+            </div>
+          }
+        >
+          <ProceedsChart scenarios={chartScenarios} activeId={activeId} start={startMonth} />
+        </Suspense>
       </section>
 
       {/* Scenario comparison cards */}

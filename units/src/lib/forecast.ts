@@ -33,6 +33,8 @@ export interface ForecastResult {
   totalProceeds: number
   totalUnitsSold: number
   monthsToLiquidate: number
+  /** True only if the stack fully sold out within the modeled horizon. */
+  liquidated: boolean
   averagePricePerCoin: number
   finalLiquidationDate: Date | null
 }
@@ -136,6 +138,7 @@ export function simulate(inputs: ForecastInputs): ForecastResult {
     totalProceeds: cumulative,
     totalUnitsSold,
     monthsToLiquidate: inventory === 0 ? rows.length : 0,
+    liquidated: inventory === 0,
     averagePricePerCoin,
     finalLiquidationDate,
   }

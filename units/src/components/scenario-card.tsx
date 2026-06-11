@@ -75,8 +75,13 @@ export function ScenarioCard({
         />
         <Row
           label="Months to sell out"
-          value={months === 0 ? '—' : `${months}`}
-          delta={baseline && !isActive ? formatDeltaMonths(monthsDelta) : null}
+          value={result.liquidated ? `${months}` : `${Math.floor(result.rows.length / 12)}y+ (not sold out)`}
+          // Months delta only makes sense when both plans actually sell out.
+          delta={
+            baseline && !isActive && result.liquidated && baseline.liquidated
+              ? formatDeltaMonths(monthsDelta)
+              : null
+          }
           // Fewer months is "good" in most users' minds, so flip the color.
           deltaPositive={monthsDelta <= 0}
         />
