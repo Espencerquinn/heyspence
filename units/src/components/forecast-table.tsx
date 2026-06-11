@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { formatMonthLabel } from '../lib/forecast'
 
 interface Props {
@@ -43,23 +43,56 @@ export function ForecastTable({ monthlySpot, onEdit, visibleMonths, start, title
       </div>
       <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-3 lg:grid-cols-4">
         {rows.map((spot, i) => (
-          <label key={i} className="flex flex-col gap-1">
-            <span className="text-[10px] uppercase tracking-wider text-zinc-500">
-              {formatMonthLabel(i, start)}
-            </span>
-            <div className="flex items-center rounded border border-white/10 bg-white/5 px-2.5 py-1.5">
-              <span className="mr-1 text-xs text-zinc-500">$</span>
-              <input
-                type="number"
-                step="0.01"
-                value={spot.toFixed(2)}
-                onChange={(e) => update(i, parseFloat(e.target.value) || 0)}
-                className="w-full bg-transparent text-sm font-mono tabular-nums text-zinc-100 outline-none"
-              />
-            </div>
-          </label>
+          <SpotCell key={i} label={formatMonthLabel(i, start)} value={spot} onCommit={(v) => update(i, v)} />
         ))}
       </div>
     </div>
+  )
+}
+
+/**
+ * A single editable spot-price cell. Holds the in-progress text locally and
+ * only commits on blur / Enter, so typing doesn't reformat mid-edit (which
+ * caused the caret to jump). Syncs to the incoming value when not focused.
+ */
+function SpotCell({
+  label,
+  value,
+  onCommit,
+}: {
+  label: string
+  value: number
+  onCommit: (v: number) => void
+}) {
+  const [text, setText] = useState(value.toFixed(2))
+  const [focused, setFocused] = useState(false)
+
+  useEffect(() => {
+    if (!focused) setText(value.toFixed(2))
+  }, [value, focused])
+
+  function commit() {
+    const v = parseFloat(text)
+    if (isFinite(v) && v > 0) onCommit(v)
+    else setText(value.toFixed(2))
+  }
+
+  return (
+    <label className="flex flex-col gap-1">
+      <span className="text-[10px] uppercase tracking-wider text-zinc-500">{label}</span>
+      <div className="flex items-center rounded border border-white/10 bg-white/5 px-2.5 py-1.5">
+        <span className="mr-1 text-xs text-zinc-500">$</span>
+        <input
+          type="number"
+          step="0.01"
+          value={text}
+          onFocus={() => setFocused(true)}
+          onChange={(e) => setText(e.target.value)}
+          onBlur={() => { setFocused(false); commit() }}
+          onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur() }}
+          className="w-full bg-transparent text-sm font-mono tabular-nums text-zinc-100 outline-none"
+        />
+      </div>
+    </label>
   )
 }

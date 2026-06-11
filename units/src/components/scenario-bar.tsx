@@ -140,6 +140,7 @@ function ScenarioChip({
 }: ChipProps) {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(scenario.name)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   function commit() {
     const trimmed = draft.trim()
@@ -161,6 +162,7 @@ function ScenarioChip({
         onClick={onToggleVisible}
         className="text-zinc-400 hover:text-zinc-100"
         title={isVisible ? 'Hide from chart' : 'Show on chart'}
+        aria-label={isVisible ? 'Hide from chart' : 'Show on chart'}
       >
         {isVisible ? <EyeIcon /> : <EyeOffIcon />}
       </button>
@@ -208,9 +210,11 @@ function ScenarioChip({
         {canDelete && (
           <IconButton
             onClick={() => {
-              if (confirm(`Delete scenario "${scenario.name}"?`)) onDelete()
+              if (confirmDelete) onDelete()
+              else { setConfirmDelete(true); setTimeout(() => setConfirmDelete(false), 3000) }
             }}
-            title="Delete"
+            title={confirmDelete ? `Click again to delete "${scenario.name}"` : 'Delete'}
+            danger={confirmDelete}
           >
             <XIcon />
           </IconButton>
@@ -224,17 +228,22 @@ function IconButton({
   onClick,
   title,
   children,
+  danger = false,
 }: {
   onClick: () => void
   title: string
   children: React.ReactNode
+  danger?: boolean
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       title={title}
-      className="rounded-sm p-0.5 text-zinc-500 hover:bg-white/10 hover:text-zinc-200"
+      aria-label={title}
+      className={`rounded-sm p-0.5 hover:bg-white/10 ${
+        danger ? 'text-red-400 hover:text-red-300' : 'text-zinc-500 hover:text-zinc-200'
+      }`}
     >
       {children}
     </button>

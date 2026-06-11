@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { COINS, getCoin } from '../lib/coins'
 import {
   buildLinearForecast,
@@ -30,7 +30,7 @@ const ProceedsChart = lazy(() =>
 import { ScenarioBar } from './scenario-bar'
 import { ScenarioCard } from './scenario-card'
 
-const FORECAST_MONTHS = 120 // 10-year horizon for monthly spot array
+const FORECAST_MONTHS = 480 // 40-yr horizon — matches simulator MAX_MONTHS so slow plans don't flatline
 
 export function SellPlanner() {
   const initial = useMemo(loadInitialScenarios, [])
@@ -84,22 +84,37 @@ export function SellPlanner() {
 
   // Forecasts for every scenario, memoized on a stringified scenario list so
   // edits propagate without us hand-listing every dependency.
+  const cacheRef = useRef<Map<string, { sig: string; result: ForecastResult }>>(new Map())
   const results = useMemo<Record<string, ForecastResult>>(() => {
     const out: Record<string, ForecastResult> = {}
     for (const s of scenarios) {
-      out[s.id] = simulate({
-        coin: getCoin(s.coinId),
-        holdingsUnits: s.holdingsUnits,
-        unitsPerMonth: s.unitsPerMonth,
-        monthlySpotPerOz: monthlySpotFor(s),
-        dealerPremiumPerOz: s.dealerPremiumPerOz,
-        plan: planOf(s),
-        startDate: startMonth,
-      })
+      // Only re-simulate a scenario when its own inputs (or the start month)
+      // change — editing one scenario no longer recomputes all of them.
+      const sig = JSON.stringify([
+        s.coinId, s.holdingsUnits, s.unitsPerMonth, s.dealerPremiumPerOz,
+        s.todaysSpot, s.annualGrowthPct, s.monthlySpotOverrides, s.plan,
+        startMonth.getTime(),
+      ])
+      const cached = cacheRef.current.get(s.id)
+      if (cached && cached.sig === sig) {
+        out[s.id] = cached.result
+      } else {
+        const result = simulate({
+          coin: getCoin(s.coinId),
+          holdingsUnits: s.holdingsUnits,
+          unitsPerMonth: s.unitsPerMonth,
+          monthlySpotPerOz: monthlySpotFor(s),
+          dealerPremiumPerOz: s.dealerPremiumPerOz,
+          plan: planOf(s),
+          startDate: startMonth,
+        })
+        cacheRef.current.set(s.id, { sig, result })
+        out[s.id] = result
+      }
     }
     return out
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(scenarios), startMonth])
+  }, [scenarios, startMonth])
 
   const activeResult = results[active.id]
   const activeMonthlySpot = useMemo(() => monthlySpotFor(active), [
@@ -180,8 +195,8 @@ export function SellPlanner() {
     updateActive('monthlySpotOverrides', [])
   }
 
+  const [confirmReset, setConfirmReset] = useState(false)
   function resetDefaults() {
-    if (!confirm('Reset every input and scenario to defaults? Your saved settings will be cleared.')) return
     storageClearAll()
     const fresh: Scenario = {
       id: newScenarioId(),
@@ -232,10 +247,17 @@ export function SellPlanner() {
           </p>
         </div>
         <button
-          onClick={resetDefaults}
-          className="rounded-md border border-white/15 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/5"
+          onClick={() => {
+            if (confirmReset) { resetDefaults(); setConfirmReset(false) }
+            else { setConfirmReset(true); setTimeout(() => setConfirmReset(false), 4000) }
+          }}
+          className={`rounded-md border px-3 py-1.5 text-xs ${
+            confirmReset
+              ? 'border-red-500/60 text-red-300 hover:bg-red-500/10'
+              : 'border-white/15 text-zinc-300 hover:bg-white/5'
+          }`}
         >
-          Reset to defaults
+          {confirmReset ? 'Click again to reset everything' : 'Reset to defaults'}
         </button>
       </header>
 
@@ -298,9 +320,10 @@ export function SellPlanner() {
           />
         </Field>
 
-        <Field label="Plan start month">
+        <Field label="Liquidation start month">
           <input
             type="month"
+            aria-label="Liquidation start month"
             value={`${startMonth.getFullYear()}-${String(startMonth.getMonth() + 1).padStart(2, '0')}`}
             onChange={(e) => {
               const [y, m] = e.target.value.split('-').map(Number)
@@ -324,6 +347,8 @@ export function SellPlanner() {
                 value={active.unitsPerMonth}
                 onChange={(e) => updateActive('unitsPerMonth', parseInt(e.target.value, 10))}
                 className="w-full accent-cyan-400"
+                aria-label="Sell rate (units per month)"
+                aria-valuetext={`${active.unitsPerMonth} units per month`}
               />
               <div className="flex items-center justify-between text-[11px] text-zinc-500">
                 <span>1 / mo</span>
@@ -698,6 +723,8 @@ function StrategyEditor({
           max={10}
           step={0.5}
           value={plan.annualPct}
+          aria-label="Bengen annual withdrawal rate (percent per year)"
+          aria-valuetext={`${plan.annualPct} percent per year`}
           onChange={(e) =>
             updatePlan({ kind: 'bengen', annualPct: parseFloat(e.target.value) })
           }
@@ -752,6 +779,7 @@ function StrategyEditor({
                   }
                   className="rounded-sm px-1.5 py-0.5 text-xs text-zinc-500 hover:bg-white/10 hover:text-rose-300"
                   title="Remove tier"
+                  aria-label="Remove tier"
                 >
                   ×
                 </button>
