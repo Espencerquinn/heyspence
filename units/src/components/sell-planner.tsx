@@ -394,7 +394,11 @@ export function SellPlanner() {
         <ForecastTable
           monthlySpot={activeMonthlySpot}
           onChange={(next) => updateActive('monthlySpotOverrides', next)}
-          visibleMonths={Math.min(60, Math.max(activeResult.monthsToLiquidate + 6, 24))}
+          visibleMonths={
+            activeResult.monthsToLiquidate > 0
+              ? Math.min(activeMonthlySpot.length, activeResult.monthsToLiquidate)
+              : activeMonthlySpot.length
+          }
         />
       </section>
 
