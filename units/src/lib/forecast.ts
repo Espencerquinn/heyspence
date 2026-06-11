@@ -13,6 +13,9 @@ export interface ForecastInputs {
   /** Strategy that decides how many units to sell each month. Defaults
    *  to fixed-rate (consume `unitsPerMonth`) when omitted. */
   plan?: SellPlan
+  /** Calendar month the plan begins. Used for the liquidation date and
+   *  month labels. Defaults to the current month when omitted. */
+  startDate?: Date
 }
 
 export interface MonthRow {
@@ -52,6 +55,7 @@ export function simulate(inputs: ForecastInputs): ForecastResult {
     monthlySpotPerOz,
     dealerPremiumPerOz,
     plan = { kind: 'fixed-rate' as const },
+    startDate,
   } = inputs
 
   const rows: MonthRow[] = []
@@ -125,7 +129,7 @@ export function simulate(inputs: ForecastInputs): ForecastResult {
   const totalUnitsSold = rows.reduce((s, r) => s + r.unitsSold, 0)
   const averagePricePerCoin = totalUnitsSold > 0 ? cumulative / totalUnitsSold : 0
   const finalLiquidationDate =
-    inventory === 0 && rows.length > 0 ? addMonths(new Date(), rows.length) : null
+    inventory === 0 && rows.length > 0 ? addMonths(startDate ?? new Date(), rows.length) : null
 
   return {
     rows,
@@ -211,7 +215,7 @@ export function formatUSD(n: number, opts: { compact?: boolean } = {}): string {
   }).format(n)
 }
 
-export function formatMonthLabel(monthIndex: number): string {
-  const d = addMonths(new Date(), monthIndex)
+export function formatMonthLabel(monthIndex: number, start?: Date): string {
+  const d = addMonths(start ?? new Date(), monthIndex)
   return d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
 }

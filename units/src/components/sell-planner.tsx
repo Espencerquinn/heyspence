@@ -60,6 +60,13 @@ export function SellPlanner() {
   const active = scenarios.find((s) => s.id === activeId) ?? scenarios[0]
   const activeCoin = getCoin(active.coinId)
 
+  // Calendar month the liquidation plan begins — drives the month labels on
+  // the table/chart and the projected liquidation date. Defaults to this month.
+  const [startMonth, setStartMonth] = useState<Date>(() => {
+    const d = new Date()
+    return new Date(d.getFullYear(), d.getMonth(), 1)
+  })
+
   // Compute the monthly spot series for any scenario.
   function monthlySpotFor(s: Scenario): number[] {
     const base = buildLinearForecast(s.todaysSpot, s.annualGrowthPct, FORECAST_MONTHS)
@@ -82,11 +89,12 @@ export function SellPlanner() {
         monthlySpotPerOz: monthlySpotFor(s),
         dealerPremiumPerOz: s.dealerPremiumPerOz,
         plan: planOf(s),
+        startDate: startMonth,
       })
     }
     return out
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(scenarios)])
+  }, [JSON.stringify(scenarios), startMonth])
 
   const activeResult = results[active.id]
   const activeMonthlySpot = useMemo(() => monthlySpotFor(active), [
@@ -285,6 +293,21 @@ export function SellPlanner() {
           />
         </Field>
 
+        <Field label="Plan start month">
+          <input
+            type="month"
+            value={`${startMonth.getFullYear()}-${String(startMonth.getMonth() + 1).padStart(2, '0')}`}
+            onChange={(e) => {
+              const [y, m] = e.target.value.split('-').map(Number)
+              if (y && m) setStartMonth(new Date(y, m - 1, 1))
+            }}
+            className="w-full rounded-md border border-white/15 bg-white/5 px-2.5 py-1.5 text-sm text-zinc-100 outline-none [color-scheme:dark]"
+          />
+          <p className="text-[11px] text-zinc-500">
+            When selling begins. Sets the month labels on the table and chart below.
+          </p>
+        </Field>
+
         {planOf(active).kind === 'fixed-rate' ? (
           <>
             <Field label={`Sell rate · ${active.unitsPerMonth.toLocaleString()}/mo`}>
@@ -394,6 +417,8 @@ export function SellPlanner() {
         <ForecastTable
           monthlySpot={activeMonthlySpot}
           onChange={(next) => updateActive('monthlySpotOverrides', next)}
+          start={startMonth}
+          title={`${active.name} · monthly spot forecast`}
           visibleMonths={
             activeResult.monthsToLiquidate > 0
               ? Math.min(activeMonthlySpot.length, activeResult.monthsToLiquidate)
@@ -413,7 +438,7 @@ export function SellPlanner() {
 
       {/* Multi-scenario chart */}
       <section className="mt-6">
-        <ProceedsChart scenarios={chartScenarios} activeId={activeId} />
+        <ProceedsChart scenarios={chartScenarios} activeId={activeId} start={startMonth} />
       </section>
 
       {/* Scenario comparison cards */}

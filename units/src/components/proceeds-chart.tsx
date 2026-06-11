@@ -22,9 +22,10 @@ export interface ChartScenario {
 interface Props {
   scenarios: ChartScenario[]
   activeId: string
+  start?: Date
 }
 
-export function ProceedsChart({ scenarios, activeId }: Props) {
+export function ProceedsChart({ scenarios, activeId, start }: Props) {
   const active = scenarios.find((s) => s.id === activeId) ?? scenarios[0]
 
   // X-axis spans the longest scenario so a slow plan doesn't get cut off.
@@ -34,7 +35,7 @@ export function ProceedsChart({ scenarios, activeId }: Props) {
   const data = Array.from({ length: Math.max(1, maxMonths) }, (_, i) => {
     const row: Record<string, number | string> = {
       monthIdx: i,
-      label: formatMonthLabel(i),
+      label: formatMonthLabel(i, start),
     }
     for (const s of scenarios) {
       const r = s.result.rows[i]
