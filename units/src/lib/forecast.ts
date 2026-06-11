@@ -1,19 +1,24 @@
 import type { Coin } from './coins'
+import type { SellPlan } from './scenarios'
 
 export interface ForecastInputs {
   coin: Coin
   holdingsUnits: number
+  /** Used for fixed-rate plans; ignored otherwise. */
   unitsPerMonth: number
   /** Per-ounce spot price for each of the next N months. */
   monthlySpotPerOz: number[]
   /** Dollars per oz the dealer pays above spot when you sell. */
   dealerPremiumPerOz: number
+  /** Strategy that decides how many units to sell each month. Defaults
+   *  to fixed-rate (consume `unitsPerMonth`) when omitted. */
+  plan?: SellPlan
 }
 
 export interface MonthRow {
-  monthIndex: number  // 0-based; month 0 = "now / next sale"
+  monthIndex: number
   spotPerOz: number
-  pricePerCoin: number   // (spot + premium) × troyOz
+  pricePerCoin: number
   unitsSold: number
   inventoryAfter: number
   proceedsThisMonth: number
@@ -24,32 +29,84 @@ export interface ForecastResult {
   rows: MonthRow[]
   totalProceeds: number
   totalUnitsSold: number
-  monthsToLiquidate: number  // 0 if there are no units to sell
+  monthsToLiquidate: number
   averagePricePerCoin: number
   finalLiquidationDate: Date | null
 }
 
 /**
- * Simulate the sale month-by-month. Stops when inventory hits zero.
- * The forecast array can be longer than needed — extra months are ignored.
- * If the forecast runs out before inventory does, the last known spot price
- * is held flat for the remaining months (with a warning surfaced upstream).
+ * Simulate the sale month-by-month. Sell quantity per month is decided
+ * by the scenario's `plan`:
+ *   • fixed-rate    → constant unitsPerMonth (legacy behavior)
+ *   • bengen N%     → derived from initial USD value ÷ current price
+ *   • price-tiers   → tier fires the first month spot crosses its trigger
+ *
+ * Stops when inventory hits zero or when 480 months elapse (hard cap to
+ * prevent silly inputs from looping forever).
  */
 export function simulate(inputs: ForecastInputs): ForecastResult {
-  const { coin, holdingsUnits, unitsPerMonth, monthlySpotPerOz, dealerPremiumPerOz } = inputs
-  const rows: MonthRow[] = []
-  let inventory = Math.max(0, Math.floor(holdingsUnits))
-  let cumulative = 0
-  const rate = Math.max(0, Math.floor(unitsPerMonth))
+  const {
+    coin,
+    holdingsUnits,
+    unitsPerMonth,
+    monthlySpotPerOz,
+    dealerPremiumPerOz,
+    plan = { kind: 'fixed-rate' as const },
+  } = inputs
 
-  // Hard cap so a rate of 0 doesn't loop forever — 480 months = 40 years
+  const rows: MonthRow[] = []
+  const initialHoldings = Math.max(0, Math.floor(holdingsUnits))
+  let inventory = initialHoldings
+  let cumulative = 0
+
+  const fixedRate = Math.max(0, Math.floor(unitsPerMonth))
   const MAX_MONTHS = 480
 
+  // Initial USD value of the stack — Bengen anchors withdrawals here.
+  const month0Spot = monthlySpotPerOz[0] ?? 0
+  const initialValueUSD = initialHoldings * (month0Spot + dealerPremiumPerOz) * coin.troyOz
+
+  // Track which price tiers have already fired (one-shot per tier).
+  const firedTiers = new Set<number>()
+
   let i = 0
-  while (inventory > 0 && i < MAX_MONTHS && rate > 0) {
+  while (inventory > 0 && i < MAX_MONTHS) {
     const spot = monthlySpotPerOz[i] ?? monthlySpotPerOz[monthlySpotPerOz.length - 1] ?? 0
     const pricePerCoin = (spot + dealerPremiumPerOz) * coin.troyOz
-    const unitsSold = Math.min(rate, inventory)
+
+    const requested = unitsThisMonth({
+      plan,
+      fixedRate,
+      pricePerCoin,
+      initialValueUSD,
+      initialHoldings,
+      spot,
+      firedTiers,
+    })
+
+    if (requested <= 0) {
+      // Don't append rows where nothing happens — that would pad the
+      // chart with zero-proceed months indefinitely. Bail early.
+      // Exception: price-tiers plans may legitimately go many months
+      // before a tier fires; we still need to walk those months so the
+      // chart shows the plateau and the tier eventually trips.
+      if (plan.kind === 'price-tiers') {
+        rows.push({
+          monthIndex: i,
+          spotPerOz: spot,
+          pricePerCoin,
+          unitsSold: 0,
+          inventoryAfter: inventory,
+          proceedsThisMonth: 0,
+          cumulativeProceeds: cumulative,
+        })
+        i += 1
+        continue
+      }
+      break
+    }
+
+    const unitsSold = Math.min(requested, inventory)
     const proceeds = unitsSold * pricePerCoin
     cumulative += proceeds
     inventory -= unitsSold
@@ -68,23 +125,55 @@ export function simulate(inputs: ForecastInputs): ForecastResult {
   const totalUnitsSold = rows.reduce((s, r) => s + r.unitsSold, 0)
   const averagePricePerCoin = totalUnitsSold > 0 ? cumulative / totalUnitsSold : 0
   const finalLiquidationDate =
-    rows.length > 0 ? addMonths(new Date(), rows.length) : null
+    inventory === 0 && rows.length > 0 ? addMonths(new Date(), rows.length) : null
 
   return {
     rows,
     totalProceeds: cumulative,
     totalUnitsSold,
-    monthsToLiquidate: rows.length,
+    monthsToLiquidate: inventory === 0 ? rows.length : 0,
     averagePricePerCoin,
     finalLiquidationDate,
   }
 }
 
-/**
- * Build a default forecast array: today's spot price grown by a steady
- * annual % rate. `months` controls the array length (long enough that
- * even slow sell rates have a price for every month).
- */
+interface UnitsThisMonthCtx {
+  plan: SellPlan
+  fixedRate: number
+  pricePerCoin: number
+  initialValueUSD: number
+  initialHoldings: number
+  spot: number
+  firedTiers: Set<number>
+}
+
+function unitsThisMonth(ctx: UnitsThisMonthCtx): number {
+  switch (ctx.plan.kind) {
+    case 'fixed-rate':
+      return ctx.fixedRate
+
+    case 'bengen': {
+      // Bengen withdraws a fixed $ amount per month, anchored to the
+      // initial portfolio value. Convert that $ amount to units at the
+      // current price.
+      const monthlyDollars = (ctx.initialValueUSD * (ctx.plan.annualPct / 100)) / 12
+      if (ctx.pricePerCoin <= 0) return 0
+      return Math.max(1, Math.round(monthlyDollars / ctx.pricePerCoin))
+    }
+
+    case 'price-tiers': {
+      let units = 0
+      ctx.plan.tiers.forEach((tier, idx) => {
+        if (!ctx.firedTiers.has(idx) && ctx.spot >= tier.spotTrigger) {
+          units += Math.max(1, Math.ceil(ctx.initialHoldings * (tier.sellPct / 100)))
+          ctx.firedTiers.add(idx)
+        }
+      })
+      return units
+    }
+  }
+}
+
 export function buildLinearForecast(
   todaysSpot: number,
   annualGrowthPct: number,

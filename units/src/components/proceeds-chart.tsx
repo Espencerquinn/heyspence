@@ -12,33 +12,61 @@ import {
 import type { ForecastResult } from '../lib/forecast'
 import { formatMonthLabel, formatUSD } from '../lib/forecast'
 
-interface Props {
+export interface ChartScenario {
+  id: string
+  name: string
+  color: string
   result: ForecastResult
 }
 
-export function ProceedsChart({ result }: Props) {
-  const data = result.rows.map((r) => ({
-    monthIdx: r.monthIndex,
-    label: formatMonthLabel(r.monthIndex),
-    inventory: r.inventoryAfter,
-    cumulative: r.cumulativeProceeds,
-    spot: r.spotPerOz,
-  }))
+interface Props {
+  scenarios: ChartScenario[]
+  activeId: string
+}
+
+export function ProceedsChart({ scenarios, activeId }: Props) {
+  const active = scenarios.find((s) => s.id === activeId) ?? scenarios[0]
+
+  // X-axis spans the longest scenario so a slow plan doesn't get cut off.
+  // After a scenario finishes, hold its cumulative flat at the final value.
+  const maxMonths = Math.max(0, ...scenarios.map((s) => s.result.monthsToLiquidate))
+
+  const data = Array.from({ length: Math.max(1, maxMonths) }, (_, i) => {
+    const row: Record<string, number | string> = {
+      monthIdx: i,
+      label: formatMonthLabel(i),
+    }
+    for (const s of scenarios) {
+      const r = s.result.rows[i]
+      row[`cum_${s.id}`] = r ? r.cumulativeProceeds : s.result.totalProceeds
+    }
+    // Inventory shown for the active scenario only — overlaying multiple
+    // would muddy the picture and they're already comparable via the
+    // cumulative lines.
+    if (active) {
+      const r = active.result.rows[i]
+      row.inventory = r ? r.inventoryAfter : 0
+    }
+    return row
+  })
+
+  const scenarioById = new Map(scenarios.map((s) => [s.id, s]))
 
   return (
     <div className="rounded-md border border-white/10 bg-white/[0.02] p-4">
-      <h3 className="mb-3 text-sm font-semibold">Sale curve</h3>
-      <div className="h-[320px] w-full">
+      <div className="mb-3 flex items-baseline justify-between">
+        <h3 className="text-sm font-semibold">Sale curve</h3>
+        <p className="text-[11px] text-zinc-500">
+          Inventory shown for active scenario ({active?.name ?? '—'}).
+        </p>
+      </div>
+      <div className="h-[360px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={data} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="invFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#a3a3a3" stopOpacity={0.45} />
+                <stop offset="0%" stopColor="#a3a3a3" stopOpacity={0.35} />
                 <stop offset="100%" stopColor="#a3a3a3" stopOpacity={0.04} />
-              </linearGradient>
-              <linearGradient id="cumFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.45} />
-                <stop offset="100%" stopColor="#22d3ee" stopOpacity={0.04} />
               </linearGradient>
             </defs>
             <CartesianGrid stroke="rgba(255,255,255,0.06)" />
@@ -76,39 +104,52 @@ export function ProceedsChart({ result }: Props) {
             />
             <Tooltip
               cursor={{ stroke: 'rgba(255,255,255,0.2)' }}
-              formatter={(value: number | string, name: string) => {
+              formatter={(value, _name, item) => {
                 const num = typeof value === 'number' ? value : 0
-                if (name === 'cumulative') return [formatUSD(num), 'Cumulative $']
-                if (name === 'inventory') return [Math.round(num).toLocaleString(), 'Units left']
-                if (name === 'spot') return [`$${num.toFixed(2)}/oz`, 'Spot']
-                return [String(value), name]
+                const key = item && typeof item.dataKey === 'string' ? item.dataKey : ''
+                if (key.startsWith('cum_')) {
+                  const s = scenarioById.get(key.slice(4))
+                  return [formatUSD(num), s ? `${s.name} · $` : 'Cumulative $']
+                }
+                if (key === 'inventory') {
+                  return [Math.round(num).toLocaleString(), 'Units left (active)']
+                }
+                return [String(value), String(_name)]
               }}
               labelFormatter={(label) => label as string}
+              contentStyle={{
+                background: 'rgba(20,20,20,0.95)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 6,
+              }}
             />
-            <Legend
-              verticalAlign="top"
-              height={28}
-              iconType="line"
-              wrapperStyle={{ fontSize: 11 }}
-            />
+            <Legend verticalAlign="top" height={28} iconType="line" wrapperStyle={{ fontSize: 11 }} />
+
             <Area
               yAxisId="left"
               type="monotone"
               dataKey="inventory"
               stroke="#a3a3a3"
-              strokeWidth={2}
+              strokeWidth={1.5}
               fill="url(#invFill)"
-              name="Units left"
+              name="Units left (active)"
+              isAnimationActive={false}
             />
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey="cumulative"
-              stroke="#22d3ee"
-              strokeWidth={2.5}
-              dot={false}
-              name="Cumulative $"
-            />
+
+            {scenarios.map((s) => (
+              <Line
+                key={s.id}
+                yAxisId="right"
+                type="monotone"
+                dataKey={`cum_${s.id}`}
+                stroke={s.color}
+                strokeWidth={s.id === activeId ? 2.75 : 2}
+                strokeDasharray={s.id === activeId ? undefined : '4 3'}
+                dot={false}
+                name={s.name}
+                isAnimationActive={false}
+              />
+            ))}
           </ComposedChart>
         </ResponsiveContainer>
       </div>
