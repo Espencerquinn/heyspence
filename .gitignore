@@ -1,2 +1,11 @@
 .timpviewcircle-secrets.env
 *.local.mjs
+
+# Local Netlify folder
+.netlify
+
+# Brainstorm visual-companion artifacts
+.superpowers/
+
+# macOS
+.DS_Store
