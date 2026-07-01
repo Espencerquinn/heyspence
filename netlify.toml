@@ -13,6 +13,13 @@
   to = "/units/index.html"
   status = 200
 
+# Job board SPA (built into /jobs, base '/jobs/'). Real files (assets) serve
+# directly; deep links fall back to the SPA's index. Must precede the catch-all.
+[[redirects]]
+  from = "/jobs/*"
+  to = "/jobs/index.html"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
