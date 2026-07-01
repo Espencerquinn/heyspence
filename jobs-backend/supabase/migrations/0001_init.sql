@@ -1,6 +1,5 @@
--- 0007_applications.sql
--- Job-application tracker (private to the board owner). Separate from the
--- real-estate `leads` pipeline; reuses the shared touch_updated_at() trigger fn.
+-- 0001_init.sql — job-application tracker schema (heyspence project).
+-- Self-contained: this project is dedicated to the job board.
 
 -- Board columns, in order. 'Archived' is terminal (used for low-fit roles too).
 create type application_status as enum (
@@ -37,7 +36,14 @@ create table public.application_notes (
   created_at     timestamptz not null default now()
 );
 
--- bump updated_at on any row change (reuses fn defined in 0001_init.sql)
+-- bump updated_at on any row change
+create or replace function public.touch_updated_at() returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
 create trigger applications_touch_updated_at
   before update on public.applications
   for each row execute function public.touch_updated_at();

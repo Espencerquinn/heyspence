@@ -1,6 +1,4 @@
--- 0009_application_status_history.sql
--- Mirrors 0003_status_history.sql for applications, so we have an audit trail
--- of pipeline movement (and a hook for any future digest/reporting).
+-- 0003_status_history.sql — audit trail of pipeline movement.
 
 create table public.application_status_history (
   id             uuid primary key default gen_random_uuid(),

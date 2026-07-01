@@ -19,7 +19,7 @@ picks it up on its next run. For immediacy, trigger a manual "run now".
 
 ## Setup (one time)
 1. **Secrets** — provide these to the routine's environment (NOT in the repo):
-   - `SUPABASE_URL` = `https://blbeomcshzqabprvbygd.supabase.co`
+   - `SUPABASE_URL` = `https://utvurjzrvnghbmzjrrhq.supabase.co` (the `heyspence` project)
    - `SUPABASE_SERVICE_ROLE_KEY` = service-role key (Supabase → Project Settings → API → service_role)
    - optional: `MAX_DRAFTS` (default 5), `DRY_RUN` (`true` to log-only)
 2. **Schedule it** — use the `/schedule` skill to register a daily cloud routine whose prompt is:

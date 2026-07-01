@@ -1,57 +1,63 @@
 # Job Board + Job-Hunter Agent — Setup & Deploy
 
-Private job-application Kanban (`jobs-app/`) + a scheduled agent (`agents/job-hunter/`) that drafts
-tailored résumés and cover letters for fitting Anthropic roles. Built by reusing the `timpviewcircle-app`
-pattern on the **same Supabase project** (`blbeomcshzqabprvbygd`).
+Private job-application Kanban served at **`heyspence.me/jobs`** + a scheduled agent
+(`agents/job-hunter/`) that drafts tailored résumés and cover letters for fitting roles
+(Anthropic full-time + fractional/part-time, Utah preferred).
 
-The code is done. The steps below are the owner-only actions (dashboards / secrets) needed to go live.
+## Architecture (as built)
+- **Frontend:** `jobs-app/` — Vite/React SPA, `base: '/jobs/'`, built into the repo-root `jobs/`
+  folder (committed, like `ahs-online/` and `units/`) and served by the existing `heyspence.me`
+  Netlify site. A `/jobs/*` rewrite in the root `netlify.toml` handles deep links. **No separate
+  Netlify site or subdomain.**
+- **Backend:** a dedicated Supabase project **`heyspence`** (ref `utvurjzrvnghbmzjrrhq`,
+  `https://utvurjzrvnghbmzjrrhq.supabase.co`) — separate from the `timpviewcircle` project. Its
+  CLI project + migrations live in **`jobs-backend/supabase/`**.
+- **Auth:** email magic-link (works out of the box). Access is hard-locked to
+  `espencer.quinn@gmail.com` in both the client (`AuthGate.tsx`) and the DB (`is_job_owner()` RLS).
+  Google sign-in is hidden until wired (see below).
 
-## 1. Apply the database migrations
-New files: `supabase/migrations/0007_applications.sql` … `0010_applications_realtime.sql` (additive —
-they don't touch the existing `leads`/real-estate tables except adding the new tables to realtime).
+## Status — already done by the setup
+- ✅ `heyspence` Supabase project created; DB password saved separately (keep it safe).
+- ✅ Migrations applied (`jobs-backend/supabase/migrations/0001–0004`): `applications`,
+  `application_notes`, `application_status_history`, single-owner RLS, realtime.
+- ✅ Auth Site URL + redirect URLs set (`heyspence.me/jobs/`, `localhost:5173`) via `supabase config push`.
+- ✅ Owner user `espencer.quinn@gmail.com` pre-created (so the first magic link works).
+- ✅ Production `jobs-app` build committed to `/jobs` with the project's anon key baked in.
 
-**Option A — Supabase CLI** (needs the CLI + DB password):
-```bash
-npm install -g supabase           # or: brew install supabase/tap/supabase
-cd ~/repos/heyspence
-supabase link --project-ref blbeomcshzqabprvbygd
-supabase db push                  # applies 0007–0010
-```
-**Option B — Dashboard:** Supabase → SQL Editor → paste each file's contents in order 0007 → 0008 → 0009 → 0010 and run.
+## To go live
+1. **Deploy the site.** The board ships when `heyspence.me` next deploys with the committed `/jobs`
+   folder. If the Netlify site auto-deploys from GitHub `main`, merge this branch → done. If it
+   deploys from another branch or manually, deploy that way. (The root `netlify.toml` already has the
+   `/jobs/*` rewrite.)
+2. **Sign in.** Visit `heyspence.me/jobs`, enter `espencer.quinn@gmail.com`, click "Email me a login
+   link", open the link. (Default Supabase auth email is rate-limited but fine for one user; add
+   custom SMTP later if desired.)
 
-Verify: `applications` table exists, RLS is on, and `select public.is_job_owner()` returns true only for your email.
+## Optional — enable Google sign-in later
+1. Google Cloud Console → create an OAuth 2.0 Web client; Authorized redirect URI:
+   `https://utvurjzrvnghbmzjrrhq.supabase.co/auth/v1/callback`.
+2. Supabase → `heyspence` → Authentication → Providers → Google → paste Client ID + secret, enable.
+3. Rebuild `jobs-app` with `VITE_GOOGLE_AUTH=1` and re-commit `/jobs` (shows the Google button).
 
-## 2. Supabase Auth redirect URL
-Supabase → Authentication → URL Configuration → add `https://jobs.heyspence.me` to **Redirect URLs**.
-(The app uses `window.location.origin` for OAuth; without this, Google sign-in fails in production.)
+## Enable the agent
+See `agents/job-hunter/README.md`. Set routine secrets `SUPABASE_URL` =
+`https://utvurjzrvnghbmzjrrhq.supabase.co` and `SUPABASE_SERVICE_ROLE_KEY` (Supabase → `heyspence` →
+Project Settings → API → service_role). Schedule via `/schedule`; keep the first run `DRY_RUN=true`.
 
-## 3. Deploy the SPA to Netlify
-- New Netlify site from this repo, **base directory** `jobs-app/` (build `npm run build`, publish `dist` —
-  already in `jobs-app/netlify.toml`).
-- Env vars: `VITE_SUPABASE_URL` = `https://blbeomcshzqabprvbygd.supabase.co`,
-  `VITE_SUPABASE_ANON_KEY` = the project's anon key.
-- Custom domain: `jobs.heyspence.me` (add the DNS record Netlify shows).
-
-Access is hard-locked to `espencer.quinn@gmail.com` in both the client (`AuthGate.tsx`) and the database
-(`is_job_owner()` RLS) — the timpviewcircle co-users cannot see it.
-
-## 4. Schedule the agent
-See `agents/job-hunter/README.md`. In short: set routine secrets `SUPABASE_URL` +
-`SUPABASE_SERVICE_ROLE_KEY` (and optional `MAX_DRAFTS`, `DRY_RUN`), then use `/schedule` to register a
-daily routine whose prompt is *"Follow `agents/job-hunter/ROUTINE.md` exactly."* Keep the first run as
-`DRY_RUN=true`, confirm the plan, then turn it off.
-
-## 5. Local development
+## Local development
 ```bash
 cd jobs-app
-cp .env.example .env.local        # fill in real VITE_SUPABASE_URL + anon key
-npm install && npm run dev        # http://localhost:5173
+# preview with sample data (no backend):
+echo 'VITE_DEMO=1' > .env.local && npm install && npm run dev
+# or run against the real project:
+printf 'VITE_SUPABASE_URL=https://utvurjzrvnghbmzjrrhq.supabase.co\nVITE_SUPABASE_ANON_KEY=<anon key>\n' > .env.local
+npm run dev
 ```
+Rebuild for prod after changes: `npm run build` (writes to `../jobs`) then commit `/jobs`.
 
 ## Notes / decisions
-- **No public homepage link** was added: the "things I've shipped" section is your public portfolio, and a
-  job-board link there would broadcast your search. The board is reachable directly at `jobs.heyspence.me`.
-- Master résumé = repo `resume.pdf`; the two Desktop Anthropic résumés are few-shot style references in
-  `agents/job-hunter/context/`. Fit-score threshold for auto-drafting = 60 (tune in `style-guide.md`).
-- On-demand drafting is queued (drafts on the routine's next run / a manual run-now), not instant —
-  a consequence of using a Claude Code routine rather than an API the browser can call.
+- **No public homepage link** — the board is reachable at `heyspence.me/jobs` and password-gated;
+  linking it from the public portfolio would broadcast the search.
+- Master résumé = repo `resume.pdf`; two Desktop Anthropic résumés are few-shot style refs in
+  `agents/job-hunter/context/`. Fit-score threshold for auto-drafting = 60 (in `style-guide.md`).
+- On-demand drafting is queued (drafts on the routine's next run / a manual run-now), not instant.

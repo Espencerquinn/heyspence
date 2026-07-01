@@ -11,7 +11,7 @@ See `context/style-guide.md` for the two-track scope, the Utah/fractional prefer
 You ARE the drafting engine — you read his résumé context and write the materials yourself.
 
 ## Inputs (environment)
-- `SUPABASE_URL` — e.g. `https://blbeomcshzqabprvbygd.supabase.co`
+- `SUPABASE_URL` — `https://utvurjzrvnghbmzjrrhq.supabase.co` (the `heyspence` project)
 - `SUPABASE_SERVICE_ROLE_KEY` — service-role key. **Secret.** It bypasses RLS so you can read/write the
   `applications` table. Never print it, never commit it.
 - `DRY_RUN` — if set to `true` (or `1`), do NOT write to the database. Instead print exactly what you

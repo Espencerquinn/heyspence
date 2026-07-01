@@ -9,6 +9,10 @@ import type { Session } from '@supabase/supabase-js';
 // independently at the database; the client check is just a friendly gate.
 const OWNER_EMAIL = 'espencer.quinn@gmail.com';
 
+// Google sign-in is only shown once the provider is configured on the project.
+// Until then, use the email magic link. Set VITE_GOOGLE_AUTH=1 to enable.
+const GOOGLE_ENABLED = import.meta.env.VITE_GOOGLE_AUTH === '1';
+
 export function AuthGate({ children }: { children: ReactNode }) {
   if (DEMO) return <>{children}</>;  // preview mode: skip auth, serve sample data
   return <AuthGated>{children}</AuthGated>;
@@ -28,10 +32,13 @@ function AuthGated({ children }: { children: ReactNode }) {
 
   const authorized = !!session && session.user.email?.toLowerCase() === OWNER_EMAIL;
 
+  // App is served under /jobs/ — send OAuth/magic-link back to that path, not the site root.
+  const redirectTo = window.location.origin + import.meta.env.BASE_URL;
+
   async function signInGoogle() {
     setError('');
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google', options: { redirectTo: window.location.origin },
+      provider: 'google', options: { redirectTo },
     });
     if (error) setError(error.message);
   }
@@ -41,7 +48,7 @@ function AuthGated({ children }: { children: ReactNode }) {
     setError(''); setLinkState('sending');
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim().toLowerCase(),
-      options: { shouldCreateUser: false, emailRedirectTo: window.location.origin },
+      options: { shouldCreateUser: false, emailRedirectTo: redirectTo },
     });
     if (error) { setError(error.message); setLinkState('idle'); }
     else setLinkState('sent');
@@ -54,9 +61,12 @@ function AuthGated({ children }: { children: ReactNode }) {
           <h1>Job Hunt</h1>
           <p className="signin__sub">Application tracker — private access</p>
 
-          <button className="btn btn--google" onClick={signInGoogle}>Sign in with Google</button>
-
-          <div className="signin__divider">or</div>
+          {GOOGLE_ENABLED && (
+            <>
+              <button className="btn btn--google" onClick={signInGoogle}>Sign in with Google</button>
+              <div className="signin__divider">or</div>
+            </>
+          )}
 
           {linkState === 'sent' ? (
             <p className="signin__note">Check your inbox for a one-tap sign-in link.</p>
