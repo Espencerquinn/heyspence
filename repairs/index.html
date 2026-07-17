@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#2f5d73">
+<title>Home Sale Prep — Repair Punch List</title>
+<style>
+  :root {
+    --paper: #f6f4ef; --surface: #fffefb; --ink: #1f2328; --ink-soft: #565b61;
+    --ink-faint: #8b9097; --line: #e2ddd3; --line-strong: #d0c9bc; --accent: #2f5d73;
+    --accent-soft: #e7eef1; --safety: #b23a3a; --cosmetic: #b7791f; --done: #3f7d54;
+    --shadow: 0 1px 2px rgba(31,35,40,.06), 0 6px 18px rgba(31,35,40,.05);
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #14181b; --surface: #1b2024; --ink: #e8e6e0; --ink-soft: #a8adb3;
+      --ink-faint: #737a81; --line: #2a3036; --line-strong: #363d44; --accent: #6fa5bd;
+      --accent-soft: #21323b; --safety: #d97a6f; --cosmetic: #d6a24a; --done: #6bb083;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.3);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f6f4ef; --surface: #fffefb; --ink: #1f2328; --ink-soft: #565b61;
+    --ink-faint: #8b9097; --line: #e2ddd3; --line-strong: #d0c9bc; --accent: #2f5d73;
+    --accent-soft: #e7eef1; --safety: #b23a3a; --cosmetic: #b7791f; --done: #3f7d54;
+    --shadow: 0 1px 2px rgba(31,35,40,.06), 0 6px 18px rgba(31,35,40,.05);
+  }
+  :root[data-theme="dark"] {
+    --paper: #14181b; --surface: #1b2024; --ink: #e8e6e0; --ink-soft: #a8adb3;
+    --ink-faint: #737a81; --line: #2a3036; --line-strong: #363d44; --accent: #6fa5bd;
+    --accent-soft: #21323b; --safety: #d97a6f; --cosmetic: #d6a24a; --done: #6bb083;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.3);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: var(--sans); line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 28px 18px 90px; }
+
+  header.masthead { border-bottom: 2px solid var(--ink); padding-bottom: 16px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 10px;
+  }
+  h1 {
+    font-size: clamp(26px, 5.4vw, 40px); line-height: 1.04; letter-spacing: -.02em;
+    margin: 0 0 6px; text-wrap: balance;
+  }
+  .sub { color: var(--ink-soft); font-size: 15px; margin: 0; max-width: 62ch; }
+
+  .progress-panel {
+    position: sticky; top: 0; z-index: 20; background: var(--paper);
+    padding: 12px 0 11px; margin-bottom: 24px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .track {
+    flex: 1 1 200px; height: 8px; border-radius: 99px; background: var(--line);
+    overflow: hidden; min-width: 150px;
+  }
+  .fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--done)); transition: width .35s ease; }
+  .count { font-family: var(--mono); font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .count b { color: var(--ink); }
+  .panel-right { display: flex; align-items: center; gap: 10px; }
+  .sync {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .04em; text-transform: uppercase;
+    display: inline-flex; align-items: center; gap: 6px; color: var(--ink-faint); white-space: nowrap;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 99px; background: var(--ink-faint); flex: 0 0 8px; }
+  .sync[data-s="synced"] { color: var(--done); } .sync[data-s="synced"] .dot { background: var(--done); }
+  .sync[data-s="saving"] { color: var(--accent); } .sync[data-s="saving"] .dot { background: var(--accent); animation: pulse 1s infinite; }
+  .sync[data-s="offline"] { color: var(--cosmetic); } .sync[data-s="offline"] .dot { background: var(--cosmetic); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  button.tool {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase;
+    color: var(--ink-soft); background: var(--surface); border: 1px solid var(--line-strong);
+    border-radius: 7px; padding: 7px 11px; cursor: pointer; transition: border-color .15s, color .15s;
+  }
+  button.tool:hover { color: var(--accent); border-color: var(--accent); }
+  button.tool:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  section.tier { margin-bottom: 32px; }
+  .tier-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+  .tier-head h2 { font-size: 20px; letter-spacing: -.01em; margin: 0; }
+  .tier-tag {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 5px; font-weight: 600;
+  }
+  .tag-safety { color: var(--safety); background: color-mix(in srgb, var(--safety) 14%, transparent); }
+  .tag-cosmetic { color: var(--cosmetic); background: color-mix(in srgb, var(--cosmetic) 16%, transparent); }
+  .tag-supply { color: var(--accent); background: var(--accent-soft); }
+  .tier-note { color: var(--ink-soft); font-size: 14px; margin: 6px 0 16px; max-width: 68ch; }
+
+  .group { margin-bottom: 16px; }
+  .group-label {
+    font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink-faint); margin: 0 0 8px; display: flex; align-items: center; gap: 8px;
+  }
+  .group-label::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  ul.items {
+    list-style: none; margin: 0; padding: 0; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow);
+  }
+  li.item { display: flex; align-items: stretch; gap: 0; border-bottom: 1px solid var(--line); }
+  li.item:last-child { border-bottom: none; }
+  .stripe { width: 4px; flex: 0 0 4px; }
+  .s-safety { background: var(--safety); } .s-cosmetic { background: var(--cosmetic); } .s-supply { background: var(--accent); }
+  .item-main { flex: 1; padding: 12px 14px; min-width: 0; }
+  .item-row { display: flex; align-items: flex-start; gap: 11px; }
+  label.chk { display: flex; align-items: flex-start; gap: 11px; cursor: pointer; flex: 1; min-width: 0; }
+  input[type="checkbox"] {
+    appearance: none; -webkit-appearance: none; flex: 0 0 22px; width: 22px; height: 22px; margin: 0;
+    border: 2px solid var(--line-strong); border-radius: 6px; background: var(--paper); cursor: pointer;
+    position: relative; transition: background .15s, border-color .15s;
+  }
+  input[type="checkbox"]:hover { border-color: var(--accent); }
+  input[type="checkbox"]:checked { background: var(--done); border-color: var(--done); }
+  input[type="checkbox"]:checked::after {
+    content: ""; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px;
+    border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+  }
+  input[type="checkbox"]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .item-text { flex: 1; min-width: 0; }
+  .item-title { font-size: 15px; line-height: 1.4; }
+  .item-loc { display: block; font-size: 13px; color: var(--ink-faint); margin-top: 2px; }
+  input:checked ~ .item-text .item-title { color: var(--ink-faint); text-decoration: line-through; text-decoration-color: var(--line-strong); }
+  .del {
+    flex: 0 0 auto; align-self: center; background: none; border: none; cursor: pointer;
+    color: var(--ink-faint); font-size: 20px; line-height: 1; padding: 4px 6px; border-radius: 6px;
+  }
+  .del:hover { color: var(--safety); background: color-mix(in srgb, var(--safety) 12%, transparent); }
+  .del:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .thumbs { display: flex; gap: 7px; flex-wrap: wrap; margin: 10px 0 0 33px; }
+  .thumb {
+    width: 60px; height: 60px; border-radius: 8px; overflow: hidden; cursor: zoom-in;
+    border: 1px solid var(--line); background: var(--line); padding: 0; flex: 0 0 auto;
+  }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .no-photo { font-family: var(--mono); font-size: 11px; color: var(--ink-faint); margin: 8px 0 0 33px; font-style: italic; }
+
+  /* Add-material form */
+  .add-wrap { margin-top: 12px; }
+  form.add { display: flex; gap: 8px; }
+  form.add input[type="text"] {
+    flex: 1; font-family: var(--sans); font-size: 15px; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--line-strong); border-radius: 9px; padding: 11px 13px;
+  }
+  form.add input[type="text"]::placeholder { color: var(--ink-faint); }
+  form.add input[type="text"]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  form.add button {
+    font-family: var(--sans); font-size: 15px; font-weight: 600; color: #fff; background: var(--accent);
+    border: none; border-radius: 9px; padding: 0 18px; cursor: pointer; white-space: nowrap;
+  }
+  form.add button:hover { filter: brightness(1.06); }
+  form.add button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .empty-note { font-size: 13px; color: var(--ink-faint); font-style: italic; padding: 12px 14px; }
+
+  footer { margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--ink-faint); font-size: 13px; }
+  footer .order { color: var(--ink-soft); } footer b { color: var(--ink); font-weight: 600; }
+
+  /* Lightbox */
+  .lb { position: fixed; inset: 0; z-index: 100; background: rgba(15,18,20,.92); display: none; align-items: center; justify-content: center; padding: 20px; }
+  .lb.open { display: flex; }
+  .lb img { max-width: 100%; max-height: 86vh; border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+  .lb-close, .lb-nav {
+    position: absolute; background: rgba(0,0,0,.45); color: #fff; border: 1px solid rgba(255,255,255,.25);
+    border-radius: 99px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .lb-close { top: max(16px, env(safe-area-inset-top)); right: 16px; width: 44px; height: 44px; font-size: 22px; }
+  .lb-nav { top: 50%; transform: translateY(-50%); width: 48px; height: 48px; font-size: 26px; }
+  .lb-prev { left: 12px; } .lb-next { right: 12px; }
+  .lb-count { position: absolute; bottom: max(18px, env(safe-area-inset-bottom)); left: 0; right: 0; text-align: center; color: #fff; font-family: var(--mono); font-size: 13px; }
+  .lb-close:focus-visible, .lb-nav:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+  @media print {
+    .progress-panel, .btns, .add-wrap, .del, .panel-right { display: none !important; }
+    body { background: #fff; } ul.items { box-shadow: none; break-inside: avoid; }
+    li.item { break-inside: avoid; } section.tier { break-inside: avoid-page; }
+    .thumb { width: 46px; height: 46px; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow">Pre-Listing Punch List · heyspence.me/repairs</p>
+    <h1>Home Sale Repairs</h1>
+    <p class="sub">Tap a photo to enlarge. Checkboxes and anything you add sync across your devices automatically — no login needed.</p>
+  </header>
+
+  <div class="progress-panel">
+    <div class="track"><div class="fill" id="fill"></div></div>
+    <div class="count"><b id="done">0</b>/<b id="total">0</b> · <span id="pct">0%</span></div>
+    <div class="panel-right">
+      <span class="sync" id="sync" data-s="loading"><span class="dot"></span><span id="syncLabel">Loading…</span></span>
+      <div class="btns"><button class="tool" id="print">Print</button></div>
+    </div>
+  </div>
+
+  <main id="board"></main>
+
+  <footer>
+    <p class="order"><b>Suggested order of work:</b> clean scuffs first (many wipe off) → fill holes → sand → texture where needed → prime patches → touch-up paint → caulk → install hardware &amp; smoke detector last.</p>
+  </footer>
+</div>
+
+<div class="lb" id="lb" aria-hidden="true">
+  <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
+  <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous">‹</button>
+  <img id="lbImg" alt="">
+  <button class="lb-nav lb-next" id="lbNext" aria-label="Next">›</button>
+  <div class="lb-count" id="lbCount"></div>
+</div>
+
+<script>
+/* ---------- Checklist data ---------- */
+var P = 'photos/'; // photo dir
+function ph(list){ return (list||[]).map(function(n){ return P + n + '.jpg'; }); }
+
+var DATA = [
+  { key:'do-first', title:'Do First', tag:'Inspector-flagged', tagClass:'tag-safety',
+    note:"Safety and function items a buyer's inspector will call out. Fix these before the inspection is booked — they carry the most negotiating weight.",
+    groups:[
+      { label:'Safety', stripe:'s-safety', items:[
+        { id:'smoke-detector', title:'Remove black tape from smoke detector; install a working detector with fresh battery', loc:'Hallway / stairwell ceiling', photos:ph([4067,4074]) },
+        { id:'outlets-secure', title:'Confirm every outlet & switch plate is secure and fully covered', loc:'Throughout — incl. recessed media outlets', photos:ph([4065,4082,4109]) },
+      ]},
+      { label:'Function & hardware', stripe:'s-safety', items:[
+        { id:'door-knob-1', title:'Install missing door knob / latch set — door is bored but has no handle', loc:'Bedroom/office door · last photo = finish to match', photos:ph([4061,4070,4083]) },
+        { id:'door-knob-2', title:'Install second missing door knob — bore hole exposed', loc:'Second interior door', photos:ph([4062]) },
+        { id:'minisplit-seal', title:'Seal wall/ceiling gaps where mini-split line sets enter; confirm units power on', loc:'Senville wall heads + ceiling cassette', photos:ph([4069,4074,4080,4081]) },
+        { id:'brick-penetration', title:'Close brick-wall pipe penetration (bag/tape now) with a proper cover or patch', loc:'Brick accent wall, office', photos:ph([4108,4107]) },
+        { id:'ceiling-patch', title:'Patch ceiling opening — old junction-box cutout & screw holes need mud, texture, paint', loc:'Ceiling near recessed light', photos:ph([4060]) },
+        { id:'garage-drywall', title:'Finish garage drywall — taped & mudded but not textured or painted', loc:'Wall behind wood handrail', photos:ph([4127]) },
+      ]},
+    ]},
+
+  { key:'before-showings', title:'Before Showings', tag:'Cosmetic', tagClass:'tag-cosmetic',
+    note:"Rarely in the inspection report, but buyers and the appraiser see these in person and in listing photos. Clean scuffs first — many wipe off and save a paint touch-up.",
+    groups:[
+      { label:'Holes — fill, sand, touch-up paint', stripe:'s-cosmetic', items:[
+        { id:'closet-trim-holes', title:'Nail / pin holes in white closet trim & divider edges (several clusters)', loc:"Kids' and main closets", photos:ph([4094,4095,4100,4101,4111,4112,4113]) },
+        { id:'shelf-anchor-holes', title:'Drywall anchor holes where picture-ledge shelf brackets were', loc:'Gray bedroom wall', photos:ph([4096]) },
+        { id:'wall-nail-holes', title:'Small nail holes + spackle spots on white wall', loc:'White wall', photos:ph([4099]) },
+        { id:'ceiling-scratch', title:'Touch up gouge / scratch in textured ceiling near mini-split cassette', loc:'Ceiling by cassette', photos:ph([4081]) },
+      ]},
+      { label:'Scuffs & marks — clean or touch-up', stripe:'s-cosmetic', items:[
+        { id:'wall-scuffs', title:'Scuff & smudge marks on gray / greige walls', loc:'Stairwell, behind couch, bedrooms, entry', photos:ph([4089,4090,4091,4114,4068,4092,4093,4110,4087,4077,4072]) },
+        { id:'baseboard-scuffs', title:'Black scuff marks on baseboards', loc:'Several rooms', photos:ph([4105,4106,4104]) },
+        { id:'door-scuffs', title:'Finger / hand scuffs on white doors & casing', loc:'Multiple doors incl. bifold closet', photos:ph([4073,4103,4098]) },
+        { id:'window-sill-marks', title:'Pencil / scribble marks on white window sills', loc:'2 windows', photos:ph([4097,4088]) },
+        { id:'kitchen-island', title:'Paint scuffs on kitchen island side panel & trim', loc:'Kitchen', photos:ph([4102]) },
+        { id:'entry-trim', title:'Scuffs / gaps at top of front-door casing', loc:'Entry', photos:ph([4085,4086]) },
+      ]},
+      { label:'Caulk & seams', stripe:'s-cosmetic', items:[
+        { id:'baseboard-caulk', title:'Re-caulk baseboard inside-corner gaps', loc:'Multiple rooms', photos:ph([4092,4093]) },
+        { id:'shower-caulk', title:'Re-caulk shower surround top seam at ceiling / crown', loc:'Bathroom', photos:[] },
+        { id:'bath-vent', title:'Bathroom exhaust fan vent — remove blue tape, reseat & clean cover', loc:'Bath ceiling', photos:ph([4063]) },
+      ]},
+    ]},
+
+  { key:'materials', title:'Materials & Supplies', tag:'Shopping list', tagClass:'tag-supply',
+    note:'Check the garage first for leftover paint cans before buying — matching existing colors is the hardest part of touch-up work. Add your own items at the bottom; they sync too.',
+    addable:true,
+    groups:[
+      { label:'Drywall & patching', stripe:'s-supply', items:[
+        { id:'m-spackle', title:'Lightweight spackle / joint compound' },
+        { id:'m-patchkit', title:'Drywall patch kit + mesh patches' },
+        { id:'m-texture', title:'Wall texture spray (match orange-peel)' },
+        { id:'m-sanding', title:'Sanding sponges + block' },
+        { id:'m-putty', title:'Putty knives (1½″ and 4–6″)' },
+      ]},
+      { label:'Paint & touch-up', stripe:'s-supply', items:[
+        { id:'m-wallpaint', title:'Wall paint — white, light gray, greige/tan' },
+        { id:'m-ceilpaint', title:'Ceiling paint (flat white)' },
+        { id:'m-trimpaint', title:'Trim / door paint (semi-gloss white)' },
+        { id:'m-brushes', title:'Angled brush, foam mini-roller + tray' },
+        { id:'m-tape', title:"Painter's tape" },
+      ]},
+      { label:'Caulk & hardware', stripe:'s-supply', items:[
+        { id:'m-caulk', title:'Paintable white caulk + caulk gun' },
+        { id:'m-silicone', title:'Kitchen/bath silicone (shower surround)' },
+        { id:'m-knobs', title:'2× door knob / latch sets (match dark finish)' },
+        { id:'m-coverplate', title:'Cover plate for brick-wall penetration' },
+        { id:'m-detector', title:'Smoke detector + batteries' },
+      ]},
+      { label:'Cleaning', stripe:'s-supply', items:[
+        { id:'m-eraser', title:'Magic Eraser / degreaser' },
+        { id:'m-cloths', title:'Microfiber cloths' },
+      ]},
+    ]},
+];
+
+/* ---------- State + sync ---------- */
+var API = '/.netlify/functions/repairs-state';
+var LS = 'repairs-state-v1';
+var state = { checked:{}, custom:[] };
+var saveTimer = null;
+var lastServerSig = null;
+function sigOf(o){ return JSON.stringify({ checked:o.checked||{}, custom:o.custom||[] }); }
+
+function cacheRead(){ try { return JSON.parse(localStorage.getItem(LS)) || null; } catch(e){ return null; } }
+function cacheWrite(){ try { localStorage.setItem(LS, JSON.stringify(state)); } catch(e){} }
+
+function setSync(s, label){
+  var el = document.getElementById('sync');
+  el.dataset.s = s;
+  document.getElementById('syncLabel').textContent = label;
+}
+
+function applyServer(data){
+  if(!data || typeof data !== 'object') return;
+  state.checked = (data.checked && typeof data.checked === 'object') ? data.checked : {};
+  state.custom = Array.isArray(data.custom) ? data.custom : [];
+  cacheWrite();
+}
+
+async function refresh(){
+  try {
+    var r = await fetch(API, { cache:'no-store' });
+    if(!r.ok) throw new Error('http '+r.status);
+    var data = await r.json();
+    var sig = sigOf(data);
+    if(sig !== lastServerSig){        // only rebuild the DOM when state actually changed
+      lastServerSig = sig;
+      applyServer(data);
+      render();
+    }
+    setSync('synced', 'Synced');
+  } catch(e){
+    setSync('offline', 'Offline · saved here');
+  }
+}
+
+function scheduleSave(){
+  cacheWrite();
+  setSync('saving', 'Saving…');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, 550);
+}
+
+async function save(){
+  try {
+    var r = await fetch(API, {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ checked: state.checked, custom: state.custom })
+    });
+    if(!r.ok) throw new Error('http '+r.status);
+    lastServerSig = sigOf(state);   // our own write is now the server truth; don't re-render on next refresh
+    setSync('synced', 'Synced');
+  } catch(e){
+    setSync('offline', 'Offline · will retry');
+  }
+}
+
+/* ---------- Rendering ---------- */
+var board = document.getElementById('board');
+
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
+
+function itemNode(it, stripe, opts){
+  opts = opts || {};
+  var li = document.createElement('li'); li.className = 'item';
+  var st = document.createElement('span'); st.className = 'stripe ' + stripe; li.appendChild(st);
+  var main = document.createElement('div'); main.className = 'item-main';
+
+  var row = document.createElement('div'); row.className = 'item-row';
+  var label = document.createElement('label'); label.className = 'chk';
+  var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!state.checked[it.id];
+  cb.addEventListener('change', function(){
+    if(cb.checked) state.checked[it.id] = true; else delete state.checked[it.id];
+    updateProgress(); scheduleSave();
+  });
+  label.appendChild(cb);
+  var tx = document.createElement('span'); tx.className = 'item-text';
+  var t = document.createElement('span'); t.className = 'item-title'; t.textContent = it.title; tx.appendChild(t);
+  if(it.loc){ var l = document.createElement('span'); l.className = 'item-loc'; l.textContent = it.loc; tx.appendChild(l); }
+  label.appendChild(tx);
+  row.appendChild(label);
+
+  if(opts.deletable){
+    var del = document.createElement('button'); del.className = 'del'; del.type = 'button';
+    del.setAttribute('aria-label', 'Remove ' + it.title); del.textContent = '×';
+    del.addEventListener('click', function(){
+      state.custom = state.custom.filter(function(c){ return c.id !== it.id; });
+      delete state.checked[it.id];
+      render(); scheduleSave();
+    });
+    row.appendChild(del);
+  }
+  main.appendChild(row);
+
+  if(it.photos && it.photos.length){
+    var strip = document.createElement('div'); strip.className = 'thumbs';
+    it.photos.forEach(function(src, i){
+      var b = document.createElement('button'); b.className = 'thumb'; b.type = 'button';
+      b.setAttribute('aria-label', 'View photo ' + (i+1) + ' for ' + it.title);
+      var im = document.createElement('img'); im.loading = 'lazy'; im.src = src; im.alt = it.title + ' — photo ' + (i+1);
+      b.appendChild(im);
+      b.addEventListener('click', function(){ openLb(it.photos, i); });
+      strip.appendChild(b);
+    });
+    main.appendChild(strip);
+  } else if(opts.notePhoto){
+    var np = document.createElement('div'); np.className = 'no-photo'; np.textContent = 'No photo on file'; main.appendChild(np);
+  }
+
+  li.appendChild(main);
+  return li;
+}
+
+function render(){
+  board.innerHTML = '';
+  DATA.forEach(function(tier){
+    var sec = document.createElement('section'); sec.className = 'tier';
+    var head = document.createElement('div'); head.className = 'tier-head';
+    var h2 = document.createElement('h2'); h2.textContent = tier.title; head.appendChild(h2);
+    var tag = document.createElement('span'); tag.className = 'tier-tag ' + tier.tagClass; tag.textContent = tier.tag; head.appendChild(tag);
+    sec.appendChild(head);
+    var note = document.createElement('p'); note.className = 'tier-note'; note.textContent = tier.note; sec.appendChild(note);
+
+    tier.groups.forEach(function(g){
+      var gd = document.createElement('div'); gd.className = 'group';
+      var gl = document.createElement('p'); gl.className = 'group-label'; gl.textContent = g.label; gd.appendChild(gl);
+      var ul = document.createElement('ul'); ul.className = 'items';
+      g.items.forEach(function(it){ ul.appendChild(itemNode(it, g.stripe, { notePhoto: tier.key==='before-showings' })); });
+      gd.appendChild(ul); sec.appendChild(gd);
+    });
+
+    if(tier.addable){
+      var gd2 = document.createElement('div'); gd2.className = 'group';
+      var gl2 = document.createElement('p'); gl2.className = 'group-label'; gl2.textContent = 'Items you added'; gd2.appendChild(gl2);
+      var ul2 = document.createElement('ul'); ul2.className = 'items';
+      if(state.custom.length){
+        state.custom.forEach(function(c){ ul2.appendChild(itemNode(c, 's-supply', { deletable:true })); });
+      } else {
+        var em = document.createElement('li'); em.className = 'empty-note'; em.textContent = 'Nothing added yet — use the box below to add materials or tasks.'; ul2.appendChild(em);
+      }
+      gd2.appendChild(ul2); sec.appendChild(gd2);
+
+      var aw = document.createElement('div'); aw.className = 'add-wrap';
+      var form = document.createElement('form'); form.className = 'add';
+      var inp = document.createElement('input'); inp.type = 'text'; inp.placeholder = 'Add a material or task…'; inp.setAttribute('aria-label', 'Add a material or task'); inp.maxLength = 200;
+      var btn = document.createElement('button'); btn.type = 'submit'; btn.textContent = 'Add';
+      form.appendChild(inp); form.appendChild(btn);
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        var v = inp.value.trim();
+        if(!v) return;
+        var id = 'c-' + Date.now().toString(36) + '-' + Math.floor(Math.random()*1e4).toString(36);
+        state.custom.push({ id:id, label:v, title:v });
+        inp.value = '';
+        render(); scheduleSave();
+      });
+      aw.appendChild(form); sec.appendChild(aw);
+    }
+    board.appendChild(sec);
+  });
+  updateProgress();
+}
+
+function updateProgress(){
+  var boxes = board.querySelectorAll('input[type="checkbox"]');
+  var total = boxes.length, done = 0;
+  boxes.forEach(function(b){ if(b.checked) done++; });
+  var pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('fill').style.width = pct + '%';
+  document.getElementById('done').textContent = done;
+  document.getElementById('total').textContent = total;
+  document.getElementById('pct').textContent = pct + '%';
+}
+
+/* ---------- Lightbox ---------- */
+var lb = document.getElementById('lb'), lbImg = document.getElementById('lbImg'),
+    lbCount = document.getElementById('lbCount'), lbPrev = document.getElementById('lbPrev'),
+    lbNext = document.getElementById('lbNext');
+var lbList = [], lbIdx = 0;
+function showLb(){ lbImg.src = lbList[lbIdx]; var multi = lbList.length>1;
+  lbPrev.style.display = lbNext.style.display = multi ? 'flex' : 'none';
+  lbCount.textContent = multi ? (lbIdx+1)+' / '+lbList.length : ''; }
+function openLb(list, i){ lbList = list; lbIdx = i; lb.classList.add('open'); lb.setAttribute('aria-hidden','false'); showLb(); }
+function closeLb(){ lb.classList.remove('open'); lb.setAttribute('aria-hidden','true'); lbImg.src=''; }
+lbPrev.addEventListener('click', function(){ lbIdx = (lbIdx-1+lbList.length)%lbList.length; showLb(); });
+lbNext.addEventListener('click', function(){ lbIdx = (lbIdx+1)%lbList.length; showLb(); });
+document.getElementById('lbClose').addEventListener('click', closeLb);
+lb.addEventListener('click', function(e){ if(e.target === lb) closeLb(); });
+document.addEventListener('keydown', function(e){
+  if(!lb.classList.contains('open')) return;
+  if(e.key === 'Escape') closeLb();
+  else if(e.key === 'ArrowLeft' && lbList.length>1){ lbIdx=(lbIdx-1+lbList.length)%lbList.length; showLb(); }
+  else if(e.key === 'ArrowRight' && lbList.length>1){ lbIdx=(lbIdx+1)%lbList.length; showLb(); }
+});
+
+/* ---------- Boot ---------- */
+document.getElementById('print').addEventListener('click', function(){ window.print(); });
+document.addEventListener('visibilitychange', function(){ if(document.visibilityState === 'visible') refresh(); });
+
+var cached = cacheRead();
+if(cached){ applyServer(cached); }
+render();
+setSync('loading', 'Syncing…');
+refresh();
+</script>
+</body>
+</html>
