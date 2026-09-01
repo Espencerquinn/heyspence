@@ -9,6 +9,7 @@ export async function listTasks(): Promise<Task[]> {
       .select('*')
       .eq('status', 'open')
       .order('due_date', { nullsFirst: false })
+      .order('id')
       .range(from, to),
   );
 }

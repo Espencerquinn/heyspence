@@ -7,6 +7,7 @@ export async function listEntries(): Promise<JournalEntry[]> {
     supabase
       .from('journal_entries')
       .select('entry_date, body, mood, energy, lesson')
+      // entry_date is the primary key, so it's already unique — no tiebreak needed.
       .order('entry_date', { ascending: false })
       .range(from, to),
   );

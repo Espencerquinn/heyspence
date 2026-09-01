@@ -4,13 +4,13 @@ import type { Goal, Milestone } from '../types';
 
 export async function listGoals(): Promise<Goal[]> {
   return fetchAllPages<Goal>((from, to) =>
-    supabase.from('goals').select('*').order('target_date').range(from, to),
+    supabase.from('goals').select('*').order('target_date').order('id').range(from, to),
   );
 }
 
 export async function listMilestones(): Promise<Milestone[]> {
   return fetchAllPages<Milestone>((from, to) =>
-    supabase.from('milestones').select('*').order('sort_order').range(from, to),
+    supabase.from('milestones').select('*').order('sort_order').order('id').range(from, to),
   );
 }
 

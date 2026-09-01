@@ -11,6 +11,7 @@ export async function listPhotos(): Promise<ProgressPhoto[]> {
       .from('progress_photos')
       .select('*')
       .order('taken_on', { ascending: false })
+      .order('id')
       .range(from, to),
   );
 }

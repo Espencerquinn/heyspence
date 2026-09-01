@@ -10,6 +10,7 @@ export async function listLogs(sinceISO: string): Promise<HabitLog[]> {
       .select('habit_id, log_date, count')
       .gte('log_date', sinceISO)
       .order('log_date')
+      .order('habit_id')
       .range(from, to),
   );
 }

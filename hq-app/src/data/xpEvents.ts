@@ -7,6 +7,8 @@ export async function listEvents(): Promise<XpEvent[]> {
     supabase
       .from('xp_events')
       .select('id, domain, amount, kind, ref_id, occurred_on')
+      .order('occurred_on')
+      .order('id')
       .range(from, to),
   );
 }

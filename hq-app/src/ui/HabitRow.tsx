@@ -24,8 +24,9 @@ export function HabitRow({ habit }: { habit: Habit }) {
       await reload();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
-      setBusy(false);
       setConfirming(false);
+    } finally {
+      setBusy(false);
     }
   }
 
