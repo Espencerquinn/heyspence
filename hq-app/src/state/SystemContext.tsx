@@ -5,13 +5,15 @@ import {
 import { loadSnapshot, type Snapshot } from '../data/snapshot';
 import { setLog } from '../data/habitLogs';
 import { award, revokeHabitAward } from '../data/xpEvents';
+import { recordPenalty } from '../data/penalties';
 import { unlockTitle } from '../data/titles';
 import { derivePlayer, isDayCleared, type PlayerState } from '../system/derive';
 import { rankFromLevel } from '../system/levels';
 import { buildLogIndex, isMetOn } from '../system/streaks';
-import { todayISO } from '../system/dates';
+import { addDays, todayISO } from '../system/dates';
 import { evaluateTitles, emptyTitleContext } from '../system/titles';
-import { XP } from '../system/xp';
+import { planCatchup } from '../system/catchup';
+import { XP, playerTotal } from '../system/xp';
 import { useNotify } from './useNotifications';
 import {
   DOMAIN_COLOR, DOMAIN_OF, DOMAINS, STAT_KEYS,
@@ -40,6 +42,45 @@ function countLogsByDomain(habits: Habit[], logs: HabitLog[]): Record<Domain, nu
   return out;
 }
 
+/**
+ * Runs the catch-up penalty evaluation over the gap between the player's
+ * earliest history and yesterday. Idempotent: already-penalized dates are
+ * skipped via `alreadyPenalized`, so re-running on every load never stacks
+ * penalties. Returns whether any penalty was recorded (caller should reload).
+ */
+async function runCatchup(snap: Snapshot, today: string): Promise<boolean> {
+  // Never penalize days before the player started playing. With seeded habits and
+  // no history, a brand-new install would otherwise fire a PENALTY panel for
+  // "yesterday" on the very first sign-in — punishing the user for a day they did
+  // not have the app. If there is no history at all, there is nothing to catch up on.
+  const started = [
+    ...snap.logs.map((l) => l.log_date),
+    ...snap.events.map((e) => e.occurred_on),
+  ].sort()[0];
+  if (!started) return false;
+
+  const plan = planCatchup({
+    fromDate: started,
+    throughDate: addDays(today, -1),   // never penalize today; it is still live
+    habits: snap.habits,
+    index: buildLogIndex(snap.logs),
+    alreadyPenalized: new Set(snap.penalties.map((p) => p.penalty_date)),
+    totalXp: playerTotal(snap.events),
+  });
+  if (plan.penalties.length === 0) return false;
+
+  for (const p of plan.penalties) {
+    await recordPenalty({
+      penalty_date: p.date, missed_habit_ids: p.missedHabitIds,
+      xp_lost: p.xpLost, streak_before: 0,
+    });
+    if (p.xpLost > 0) {
+      await award({ amount: -p.xpLost, kind: 'penalty', occurredOn: p.date });
+    }
+  }
+  return true;
+}
+
 export function SystemProvider({ children }: { children: ReactNode }) {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [error, setError] = useState<string>('');
@@ -55,7 +96,27 @@ export function SystemProvider({ children }: { children: ReactNode }) {
     catch (e) { setError(e instanceof Error ? e.message : String(e)); }
   }, []);
 
-  useEffect(() => { void reload(); }, [reload]);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const snap = await loadSnapshot();
+      if (cancelled) return;
+      const changed = await runCatchup(snap, today);
+      const fresh = changed ? await loadSnapshot() : snap;
+      if (cancelled) return;
+      setSnapshot(fresh);
+      if (changed) {
+        const lost = fresh.penalties.reduce((s, p) => s + p.xp_lost, 0);
+        notify({
+          tone: 'penalty', kind: 'PENALTY', huge: 'QUEST FAILED',
+          lead: 'Days passed with the daily quest uncompleted. The streak has been severed.',
+          deltas: [{ text: `−${lost} EXP` }, { text: 'STREAK → 0' }],
+          fine: 'One missed day is data, not a verdict. Clear today to begin again.',
+        });
+      }
+    })().catch((e) => setError(e instanceof Error ? e.message : String(e)));
+    return () => { cancelled = true; };
+  }, [today, notify]);
 
   const index = useMemo(
     () => buildLogIndex(snapshot?.logs ?? []), [snapshot]);
