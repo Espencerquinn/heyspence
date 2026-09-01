@@ -3492,6 +3492,23 @@ function countLogsByDomain(habits: Habit[], logs: HabitLog[]): Record<Domain, nu
 
 (Import `DOMAINS`, `type Domain`, `type HabitLog` alongside the existing type imports.)
 
+> **Amendments required by review (do these as part of Step 2/3):**
+>
+> 1. **`tickHabit` must be wrapped in try/catch.** The rewritten body calls `setLog`, `award`,
+>    `revokeHabitAward`, `loadSnapshot` (twice) and `unlockTitle` directly, and its caller discards the
+>    promise (`void tickHabit(...)`). There is no ErrorBoundary and no unhandledrejection handler, so a
+>    DB blip mid-tick is silently swallowed and leaves the UI half-applied. Wrap the whole body and
+>    `setError(...)` on failure, mirroring `reload()`. The previous implementation got this for free
+>    because it ended in `reload()`; the rewrite loses it.
+> 2. **Merge newly unlocked titles into the snapshot before returning.** `unlockTitle` persists to the
+>    DB but local `snapshot.titles` is never updated, so a TITLE ACQUIRED panel promises a title the
+>    player card does not yet show until the next action. Collect the unlocked codes and merge them into
+>    `next.titles` (with `unlocked_at: new Date().toISOString()`) before `setSnapshot`.
+> 3. **`NotificationHost` needs focus management.** It sets `role="dialog" aria-modal="true"` but never
+>    moves focus in and never traps Tab, so keyboard users tab straight into the background behind the
+>    scrim. The approved mockup focuses the ✕ button on open. Focus it on mount and keep Tab inside
+>    `.notif__panel` while a notice is showing.
+
 - [ ] **Step 4: Mount the providers and host**
 
 `hq-app/src/App.tsx`:
