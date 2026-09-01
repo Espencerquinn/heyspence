@@ -25,6 +25,13 @@
   to = "/repairs/index.html"
   status = 200
 
+# HQ SPA (built into /hq, base '/hq/'). Real files (assets) serve directly;
+# deep links fall back to the SPA's index. Must precede the catch-all.
+[[redirects]]
+  from = "/hq/*"
+  to = "/hq/index.html"
+  status = 200
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
