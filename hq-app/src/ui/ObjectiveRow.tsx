@@ -1,9 +1,9 @@
 import { DOMAIN_COLOR, STAT_OF, type Habit } from '../types';
 
 export function ObjectiveRow(props: {
-  habit: Habit; count: number; met: boolean; onToggle: () => void;
+  habit: Habit; count: number; met: boolean; busy: boolean; onToggle: () => void;
 }) {
-  const { habit, count, met, onToggle } = props;
+  const { habit, count, met, busy, onToggle } = props;
   const partial = habit.target_count > 1;
   const pct = Math.min(100, (count / habit.target_count) * 100);
 
@@ -12,6 +12,7 @@ export function ObjectiveRow(props: {
       type="button"
       className="obj"
       aria-pressed={met}
+      disabled={busy}
       style={{ ['--k' as string]: DOMAIN_COLOR[habit.domain] }}
       onClick={onToggle}
     >

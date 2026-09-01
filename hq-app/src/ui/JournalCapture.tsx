@@ -20,8 +20,9 @@ export function JournalCapture() {
     try {
       // Decide "is this the first save for today" from the snapshot BEFORE the
       // write, not from a flag captured at mount — a prior save this session
-      // already flipped `existing`, and only the ledger's own (kind,
-      // occurred_on) uniqueness is the true backstop against a double award.
+      // already flipped `existing`. The ledger's own (kind, occurred_on)
+      // uniqueness is the true backstop against a double award, but only once
+      // migration 0005 has been applied — see hq-backend/supabase/migrations/0005.
       const isNew = !existing;
       await upsertEntry({ entry_date: today, body: body.trim(), mood, energy: null, lesson: null });
       if (isNew) await award({ amount: XP.journal, kind: 'journal', occurredOn: today });

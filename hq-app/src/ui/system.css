@@ -318,6 +318,7 @@
 }
 .obj:hover { background: rgba(90, 216, 255, 0.05); }
 .obj:focus-visible { outline: 1px solid var(--system); outline-offset: -2px; }
+.obj:disabled { cursor: not-allowed; opacity: 0.6; }
 
 .box {
   width: 19px;
