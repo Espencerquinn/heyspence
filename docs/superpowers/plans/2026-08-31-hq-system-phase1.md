@@ -25,6 +25,7 @@
 - **Stat curve:** `statLevel = floor(sqrt(domainXp / 12))`.
 - **Rank bands:** E 1–9 · D 10–19 · C 20–34 · B 35–49 · A 50–69 · S 70+.
 - **EXP floor invariant:** no penalty may ever reduce the player's level. Penalties clamp at the current level's cumulative threshold.
+- **Never return `-0` from the XP math.** `Object.is(-0, 0)` is false, so a negative zero fails a `toBe(0)` assertion and can reach the database as a distinct value. Guard any expression that negates a possibly-zero quantity.
 - **Dates are `YYYY-MM-DD` strings** throughout — never `Date` objects in logic, never UTC conversion. All day math goes through `src/system/dates.ts`.
 - **Single theme.** Dark only. No `prefers-color-scheme` branches.
 - **Vite base:** `/hq/`, `build.outDir: '../hq'`, `emptyOutDir: true`. The `hq/` output is committed.
@@ -1113,7 +1114,11 @@ export const XP = {
 export function clampPenalty(totalXp: number, requested: number): number {
   const floor = cumulativeXpFor(levelFromXp(totalXp));
   const room = Math.max(0, totalXp - floor);
-  return -Math.min(Math.abs(requested), room);
+  const deducted = Math.min(Math.abs(requested), room);
+  // Return a literal 0, never -0. Object.is(-0, 0) is false, so a -0 here
+  // fails the `toBe(0)` boundary assertion and can propagate a negative zero
+  // into the xp_lost column downstream.
+  return deducted > 0 ? -deducted : 0;
 }
 
 export function playerTotal(events: ReadonlyArray<{ amount: number }>): number {
@@ -3617,7 +3622,9 @@ export function planCatchup(input: CatchupInput): CatchupPlan {
   const penalties = missed.map((m) => {
     const applied = clampPenalty(running, XP.penalty); // negative or zero
     running += applied;
-    return { date: m.date, missedHabitIds: m.missedHabitIds, xpLost: -applied };
+    // Math.abs, not -applied: negating a literal 0 yields -0, which reaches
+    // the DB's xp_lost column and any toBe(0) assertion as a distinct value.
+    return { date: m.date, missedHabitIds: m.missedHabitIds, xpLost: Math.abs(applied) };
   });
 
   return { penalties };
