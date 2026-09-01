@@ -684,11 +684,24 @@
 }
 .milestone:hover .milestone__title { color: var(--ether); }
 .milestone:focus-visible { outline: 1px solid var(--system); outline-offset: 2px; }
-.milestone[aria-pressed="true"] .milestone__title {
+.milestone:disabled { cursor: not-allowed; opacity: 0.6; }
+
+/* Completion is one-way: a done milestone renders as a static, non-
+   interactive row (no button, no click handler) so it can never be
+   unchecked and re-farmed for EXP. */
+.milestone--done { cursor: default; }
+.milestone--done .milestone__title {
   color: var(--mute);
   text-decoration: line-through;
   text-decoration-color: var(--mute-lo);
 }
+.milestone--done .box {
+  background: var(--k, var(--system));
+  border-color: var(--k, var(--system));
+  box-shadow: 0 0 8px var(--k, var(--system));
+}
+.milestone--done .box::after { opacity: 1; transform: rotate(-45deg) scale(1); }
+
 .milestone__title { font-size: 12px; letter-spacing: 0.03em; color: var(--mute); }
 .milestone .box { width: 15px; height: 15px; }
 .milestone .box::after { width: 7px; height: 4px; }
@@ -793,3 +806,22 @@ select.field { cursor: pointer; }
 }
 .weekday input { accent-color: var(--system); cursor: pointer; }
 .weekday input:focus-visible { outline: 1px solid var(--system); outline-offset: 2px; }
+
+/* ---------- mini-form (add goal / add milestone / add task) ---------- */
+.mini-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3);
+  align-items: center;
+}
+/* Padding is contextual: each host already manages its own edges, so the
+   bare form carries none and each parent adds exactly what it needs. */
+.mini-form-wrap { padding: var(--s4); }
+.tasklist > .mini-form { padding: var(--s3) var(--s4); }
+.goal > .mini-form { padding: var(--s3) 0 0; }
+.field--date { width: 140px; color-scheme: dark; }
+.btn--sm {
+  padding: 6px 14px;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+}

@@ -1,5 +1,6 @@
 import { Frame } from '../ui/Frame';
 import { GoalCard } from '../ui/GoalCard';
+import { GoalForm } from '../ui/GoalForm';
 import { TaskList } from '../ui/TaskList';
 import { HabitEditor } from '../ui/HabitEditor';
 import { useSystem } from '../state/SystemContext';
@@ -31,6 +32,7 @@ export function DomainScreen({ domain }: { domain: Domain }) {
               <GoalCard key={g.id} goal={g}
                         milestones={snapshot.milestones.filter((m) => m.goal_id === g.id)} />
             ))}
+        <GoalForm domain={domain} />
       </Frame>
 
       <Frame title="Habits" meta={`${habits.length} TRACKED`}>
