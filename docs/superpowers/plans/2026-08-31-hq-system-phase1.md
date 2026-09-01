@@ -15,9 +15,10 @@
 - **Owner email:** `espencer.quinn@gmail.com` — hardcoded in both the client AuthGate and the DB `hq.is_owner()` function. Never parameterize.
 - **Supabase project:** `heyspence`, ref `utvurjzrvnghbmzjrrhq`, URL `https://utvurjzrvnghbmzjrrhq.supabase.co`.
 - **Schema:** all tables in `hq`, never `public`. The `hq` schema MUST be added to `[api] schemas` in `config.toml` or PostgREST cannot see it.
-- **Six domains, fixed:** `physical`, `intellectual`, `spiritual`, `social`, `musical`, `financial` — a Postgres enum, not a text column.
-- **Stat keys:** `STR`, `INT`, `WIS`, `CHA`, `SENSE`, `FOR` in that display order.
-- **Stat colors:** `STR #5ad8ff` · `INT #7f9cff` · `WIS #b28cff` · `CHA #4fe3b0` · `SENSE #ff9ad5` · `FOR #ffc46b`.
+- **Seven domains, fixed:** `physical`, `intellectual`, `spiritual`, `social`, `musical`, `financial`, `marital` — a Postgres enum, not a text column.
+- **Stat keys:** `STR`, `INT`, `WIS`, `CHA`, `SENSE`, `FOR`, `BND` in that display order.
+- **Stat colors:** `STR #5ad8ff` · `INT #7f9cff` · `WIS #b28cff` · `CHA #4fe3b0` · `SENSE #ff9ad5` · `FOR #ffc46b` · `BND #ff7a6b`.
+- **Penalty panels never tint stat deltas with a stat color** — they render in `--mute`. `BND #ff7a6b` sits near `--penalty #ff4d6a`, and categorical hues must stay separate from the semantic red.
 - **Palette:** `--void #04070f` · `--abyss #070d19` · `--system #5ad8ff` · `--ether #dff2ff` · `--mute #6f8ba6` · `--penalty #ff4d6a`.
 - **Type:** Chakra Petch (display/UI), JetBrains Mono (all bracketed data). Google Fonts.
 - **Level curve:** XP to advance from level *n* is `70n + 20`. Cumulative to reach level *n* is `(n-1)(35n + 20)`.
@@ -43,14 +44,14 @@ hq-app/
   index.html                      fonts, manifest link
   vite.config.ts                  base '/hq/', outDir '../hq'
   vitest.config.ts
-  package.json  tsconfig*.json  eslint.config.js
+  package.json  tsconfig*.json
   public/
     manifest.webmanifest
     icon-192.png  icon-512.png  icon-maskable.png
   src/
     main.tsx                      mount
     App.tsx                       AuthGate > SystemProvider > Router > Shell
-    router.tsx                    History-API router, 10 routes
+    router.tsx                    History-API router, 11 routes
     supabaseClient.ts
     types.ts                      Domain/StatKey unions, row types, constants
     system/                       PURE. no react, no supabase imports.
@@ -107,8 +108,7 @@ hq-app/
     "dev": "vite",
     "build": "tsc -b && vite build",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "eslint ."
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.0",
@@ -328,21 +328,21 @@ import { describe, expect, it } from 'vitest';
 import { DOMAINS, DOMAIN_OF, STAT_KEYS, STAT_OF, DOMAIN_COLOR, DOMAIN_LABEL } from '../types';
 
 describe('domain constants', () => {
-  it('has exactly six domains in spec order', () => {
+  it('has exactly seven domains in spec order', () => {
     expect(DOMAINS).toEqual([
-      'physical', 'intellectual', 'spiritual', 'social', 'musical', 'financial',
+      'physical', 'intellectual', 'spiritual', 'social', 'musical', 'financial', 'marital',
     ]);
   });
 
-  it('has exactly six stat keys in display order', () => {
-    expect(STAT_KEYS).toEqual(['STR', 'INT', 'WIS', 'CHA', 'SENSE', 'FOR']);
+  it('has exactly seven stat keys in display order', () => {
+    expect(STAT_KEYS).toEqual(['STR', 'INT', 'WIS', 'CHA', 'SENSE', 'FOR', 'BND']);
   });
 
   it('maps every domain to a stat and back without loss', () => {
     for (const d of DOMAINS) {
       expect(DOMAIN_OF[STAT_OF[d]]).toBe(d);
     }
-    expect(Object.keys(STAT_OF)).toHaveLength(6);
+    expect(Object.keys(STAT_OF)).toHaveLength(7);
   });
 
   it('gives every domain a hex color and a label', () => {
@@ -356,6 +356,7 @@ describe('domain constants', () => {
     expect(DOMAIN_COLOR.physical).toBe('#5ad8ff');
     expect(DOMAIN_COLOR.financial).toBe('#ffc46b');
     expect(DOMAIN_COLOR.musical).toBe('#ff9ad5');
+    expect(DOMAIN_COLOR.marital).toBe('#ff7a6b');
   });
 });
 ```
@@ -370,12 +371,13 @@ Expected: FAIL — cannot resolve `../types`.
 `hq-app/src/types.ts`:
 
 ```ts
-/** The six life domains. Fixed — matches the `hq.domain` Postgres enum. */
+/** The seven life domains. Fixed — matches the `hq.domain` Postgres enum. */
 export type Domain =
-  | 'physical' | 'intellectual' | 'spiritual' | 'social' | 'musical' | 'financial';
+  | 'physical' | 'intellectual' | 'spiritual' | 'social' | 'musical' | 'financial'
+  | 'marital';
 
 /** RPG stat abbreviation shown in the stat block. */
-export type StatKey = 'STR' | 'INT' | 'WIS' | 'CHA' | 'SENSE' | 'FOR';
+export type StatKey = 'STR' | 'INT' | 'WIS' | 'CHA' | 'SENSE' | 'FOR' | 'BND';
 
 export type Rank = 'E' | 'D' | 'C' | 'B' | 'A' | 'S';
 export type Cadence = 'daily' | 'weekdays' | 'n_per_week';
@@ -387,11 +389,11 @@ export type GoalStatus = 'active' | 'done' | 'dropped';
 export type TaskStatus = 'open' | 'done' | 'dropped';
 
 export const DOMAINS: readonly Domain[] = [
-  'physical', 'intellectual', 'spiritual', 'social', 'musical', 'financial',
+  'physical', 'intellectual', 'spiritual', 'social', 'musical', 'financial', 'marital',
 ] as const;
 
 export const STAT_KEYS: readonly StatKey[] = [
-  'STR', 'INT', 'WIS', 'CHA', 'SENSE', 'FOR',
+  'STR', 'INT', 'WIS', 'CHA', 'SENSE', 'FOR', 'BND',
 ] as const;
 
 export const STAT_OF: Record<Domain, StatKey> = {
@@ -401,6 +403,7 @@ export const STAT_OF: Record<Domain, StatKey> = {
   social: 'CHA',
   musical: 'SENSE',
   financial: 'FOR',
+  marital: 'BND',
 };
 
 export const DOMAIN_OF: Record<StatKey, Domain> = {
@@ -410,6 +413,7 @@ export const DOMAIN_OF: Record<StatKey, Domain> = {
   CHA: 'social',
   SENSE: 'musical',
   FOR: 'financial',
+  BND: 'marital',
 };
 
 export const DOMAIN_COLOR: Record<Domain, string> = {
@@ -419,6 +423,7 @@ export const DOMAIN_COLOR: Record<Domain, string> = {
   social: '#4fe3b0',
   musical: '#ff9ad5',
   financial: '#ffc46b',
+  marital: '#ff7a6b',
 };
 
 export const DOMAIN_LABEL: Record<Domain, string> = {
@@ -428,6 +433,7 @@ export const DOMAIN_LABEL: Record<Domain, string> = {
   social: 'Social',
   musical: 'Music',
   financial: 'Money',
+  marital: 'Marriage',
 };
 
 /* ---------- row types (mirror the hq schema exactly) ---------- */
@@ -1030,10 +1036,10 @@ describe('domainTotals', () => {
     expect(t.financial).toBe(0);
   });
 
-  it('returns a key for all six domains even with no events', () => {
+  it('returns a key for all seven domains even with no events', () => {
     const t = domainTotals([]);
     expect(Object.keys(t).sort()).toEqual(
-      ['financial', 'intellectual', 'musical', 'physical', 'social', 'spiritual'],
+      ['financial', 'intellectual', 'marital', 'musical', 'physical', 'social', 'spiritual'],
     );
   });
 
@@ -1652,15 +1658,21 @@ describe('evaluateTitles', () => {
     expect(evaluateTitles(ctx, codes)).toEqual([]);
   });
 
-  it('unlocks Balanced only when ALL six stats reach 10', () => {
-    const five = {
+  it('unlocks Balanced only when ALL seven stats reach 10', () => {
+    const six = {
       ...emptyTitleContext(),
-      statLevels: { STR: 10, INT: 10, WIS: 10, CHA: 10, SENSE: 10, FOR: 9 },
+      statLevels: { STR: 10, INT: 10, WIS: 10, CHA: 10, SENSE: 10, FOR: 10, BND: 9 },
     };
-    expect(evaluateTitles(five, new Set()).map((t) => t.code)).not.toContain('balanced');
+    expect(evaluateTitles(six, new Set()).map((t) => t.code)).not.toContain('balanced');
 
-    const six = { ...five, statLevels: { ...five.statLevels, FOR: 10 } };
-    expect(evaluateTitles(six, new Set()).map((t) => t.code)).toContain('balanced');
+    const seven = { ...six, statLevels: { ...six.statLevels, BND: 10 } };
+    expect(evaluateTitles(seven, new Set()).map((t) => t.code)).toContain('balanced');
+  });
+
+  it('unlocks Two as One at 60 marital logs', () => {
+    const ctx = emptyTitleContext();
+    ctx.domainLogCounts.marital = 60;
+    expect(evaluateTitles(ctx, new Set()).map((t) => t.code)).toContain('two_as_one');
   });
 
   it('unlocks Monarch of Iron at 100 physical logs', () => {
@@ -1736,9 +1748,11 @@ export const TITLE_DEFS: readonly TitleDef[] = [
     test: (c) => c.domainLogCounts.social >= 25 },
   { code: 'solvent', name: 'Solvent', detail: 'Log 60 financial days.',
     test: (c) => c.domainLogCounts.financial >= 60 },
-  { code: 'balanced', name: 'Balanced', detail: 'Bring all six stats to 10.',
+  { code: 'two_as_one', name: 'Two as One', detail: 'Log 60 marital days.',
+    test: (c) => c.domainLogCounts.marital >= 60 },
+  { code: 'balanced', name: 'Balanced', detail: 'Bring all seven stats to 10.',
     test: (c) => allStatsAtLeast(c, 10) },
-  { code: 'shadow_sovereign', name: 'Shadow Sovereign', detail: 'Bring all six stats to 20.',
+  { code: 'shadow_sovereign', name: 'Shadow Sovereign', detail: 'Bring all seven stats to 20.',
     test: (c) => allStatsAtLeast(c, 20) },
   { code: 'chronicler', name: 'Chronicler', detail: 'Write 100 journal entries.',
     test: (c) => c.journalCount >= 100 },
@@ -1814,9 +1828,9 @@ max_rows = 1000
 
 create schema if not exists hq;
 
--- Six life domains, fixed. A seventh requires a migration on purpose.
+-- Seven life domains, fixed. An eighth requires a migration on purpose.
 create type hq.domain as enum (
-  'physical', 'intellectual', 'spiritual', 'social', 'musical', 'financial'
+  'physical', 'intellectual', 'spiritual', 'social', 'musical', 'financial', 'marital'
 );
 
 create type hq.cadence     as enum ('daily', 'weekdays', 'n_per_week');
@@ -2040,7 +2054,7 @@ create policy "hq_photos_owner_delete" on storage.objects
 `hq-backend/supabase/migrations/0004_seed.sql`:
 
 ```sql
--- 0004_seed.sql — one starter habit per domain so the first Daily Quest is
+-- 0004_seed.sql — starter habits covering every domain so the first Daily Quest is
 -- not empty. These are ordinary rows; edit or archive them in the app.
 
 insert into hq.habits (name, domain, cadence, weekdays, target_per_week, target_count, xp_value, sort_order)
@@ -2051,7 +2065,9 @@ values
   ('Scripture & prayer',   'spiritual',    'daily',      null, null, 1,     25, 40),
   ('Reach out to someone', 'social',       'weekdays',   '{1,2,3,4,5}', null, 1, 25, 50),
   ('Instrument practice',  'musical',      'daily',      null, null, 1,     35, 60),
-  ('Log the day''s spend', 'financial',    'daily',      null, null, 1,     20, 70)
+  ('Log the day''s spend', 'financial',    'daily',      null, null, 1,     20, 70),
+  ('Undistracted time together', 'marital', 'daily',      null, null, 1,     35, 80),
+  ('Date night',           'marital',      'n_per_week', null, 1,    1,     50, 90)
 on conflict do nothing;
 ```
 
@@ -2066,7 +2082,7 @@ Then in the Supabase dashboard → Storage, confirm `hq-photos` exists and is **
 select name, domain, cadence from hq.habits order by sort_order;
 ```
 
-Expected: 7 rows, one or two per domain, all six domains represented.
+Expected: 9 rows, one or two per domain, all seven domains represented.
 
 - [ ] **Step 4: Commit**
 
@@ -3063,7 +3079,7 @@ Copy `.player__id`, `.player__name`, `.player__title`, `.lv`, `.lv__num`, `.rank
 - [ ] **Step 6: Verify against real data**
 
 Run: `cd hq-app && npm run dev`
-Expected: the player card renders with LV.1 RANK E, all six stats at 0 and flagged NEGLECTED (correct — nothing logged yet), and an empty EXP bar.
+Expected: the player card renders with LV.1 RANK E, all seven stats at 0 and flagged NEGLECTED (correct — nothing logged yet), and an empty EXP bar.
 
 - [ ] **Step 7: Commit**
 
@@ -3071,7 +3087,7 @@ Expected: the player card renders with LV.1 RANK E, all six stats at 0 and flagg
 git add hq-app/src/ui/XpBar.tsx hq-app/src/ui/StatBlock.tsx \
         hq-app/src/ui/PlayerCard.tsx hq-app/src/screens/Status.tsx \
         hq-app/src/ui/system.css hq-app/src/App.tsx
-git commit -m "feat(hq): player card, six-stat block, and EXP bar"
+git commit -m "feat(hq): player card, seven-stat block, and EXP bar"
 ```
 
 ---
@@ -4239,7 +4255,6 @@ Run, in order:
 ```bash
 cd hq-app
 npm test          # expect: all suites pass
-npm run lint      # expect: clean
 npm run build     # expect: tsc clean, output written to ../hq
 ```
 

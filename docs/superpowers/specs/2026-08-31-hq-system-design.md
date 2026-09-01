@@ -14,7 +14,7 @@
 
 ## Decisions (locked)
 
-- **Six life domains, rendered as an RPG stat block.** This mapping is the core design idea: a neglected domain reads as a dump stat, which is a sharper motivator than a progress bar.
+- **Seven life domains, rendered as an RPG stat block.** This mapping is the core design idea: a neglected domain reads as a dump stat, which is a sharper motivator than a progress bar.
 
   | Domain | Stat | Color |
   |---|---|---|
@@ -24,6 +24,7 @@
   | Social | `CHA` | `#4fe3b0` mint |
   | Musical | `SENSE` | `#ff9ad5` magenta |
   | Financial | `FOR` | `#ffc46b` amber |
+  | Marital | `BND` | `#ff7a6b` coral |
 
 - **XP is an append-only ledger.** Levels and stats are *derived* from `hq.xp_events`, never stored as mutable counters. Tuning XP values later replays cleanly with no drift.
 - **Auth: Google OAuth only.** Wired on the `heyspence` Supabase project (see Setup). No magic-link fallback in HQ.
@@ -45,13 +46,13 @@ hq/                         committed build output (vite base '/hq/', outDir '..
 hq-backend/supabase/        migrations for the hq schema
 ```
 
-- **Routing:** minimal History-API router (~40 lines) over 10 routes. No `react-router` dependency for a single-user app this size.
+- **Routing:** minimal History-API router (~40 lines) over 11 routes. No `react-router` dependency for a single-user app this size.
 - **Dependencies:** `react`, `react-dom`, `@supabase/supabase-js`. **No chart library** — the daily-progress bars, donut, and heatmap are simple enough in CSS/SVG.
 - **Netlify:** add `/hq/*` → `/hq/index.html` rewrite **before** the catch-all in the root `netlify.toml`.
 
 ## Data model — `hq` schema
 
-Domains are a Postgres enum so a typo can't create a seventh: `hq.domain = ('physical','intellectual','spiritual','social','musical','financial')`.
+Domains are a Postgres enum so a typo can't create an eighth: `hq.domain = ('physical','intellectual','spiritual','social','musical','financial','marital')`.
 
 | Table | Columns (essentials) |
 |---|---|
@@ -98,19 +99,19 @@ statLevel(domainXp) = floor( sqrt(domainXp / 12) )
 
 **Penalty evaluation.** Runs lazily on app load: for each date between the last evaluated day and yesterday, if the day had ≥1 due habit and any went unlogged, write a `penalties` row and a −40 `penalty` xp_event. **The negative event is clamped so total EXP never drops below the current level's threshold** — you can lose progress, never a level. Streak resets to 0; the next day's quest marks those objectives as a penalty quest at 2× target.
 
-**Titles (seed set).** *The Awakened* (first 7-day streak) · *Iron Will* (30-day streak) · *Monarch of Iron* (100 gym logs) · *Well-Read* (50 reading logs) · *Perfect Tempo* (30 practice sessions) · *The Devout* (30 spiritual logs) · *Beloved* (25 social objectives) · *Solvent* (60 straight days of expense logging) · *Balanced* (all six stats ≥ 10) · *Shadow Sovereign* (all six stats ≥ 20) · *Chronicler* (100 journal entries) · *The Persistent* (recover a streak within 2 days of a penalty).
+**Titles (seed set).** *The Awakened* (first 7-day streak) · *Iron Will* (30-day streak) · *Monarch of Iron* (100 gym logs) · *Well-Read* (50 reading logs) · *Perfect Tempo* (30 practice sessions) · *The Devout* (30 spiritual logs) · *Beloved* (25 social objectives) · *Solvent* (60 straight days of expense logging) · *Two as One* (60 marital days) · *Balanced* (all seven stats ≥ 10) · *Shadow Sovereign* (all seven stats ≥ 20) · *Chronicler* (100 journal entries) · *The Persistent* (recover a streak within 2 days of a penalty).
 
 **Notifications.** A queue, so a quest clear that also triggers a level-up shows both panels in sequence. Fired on: quest clear, level up, rank promotion, title unlock, penalty.
 
 ## Screens
 
-1. **STATUS** — player card (name, level, rank, title, EXP bar, six-stat block, streak) + Daily Quest objectives + top-3 focus tasks + a one-line journal capture.
-2. **DOMAIN ×6** — that domain's goals → milestones, its habits with streaks, its task backlog, its stat history.
+1. **STATUS** — player card (name, level, rank, title, EXP bar, seven-stat block, streak) + Daily Quest objectives + top-3 focus tasks + a one-line journal capture.
+2. **DOMAIN ×7** — that domain's goals → milestones, its habits with streaks, its task backlog, its stat history.
 3. **GRID** — the month matrix: habits as rows, days as columns, tick cells, daily-progress bars above, and completed/left/% summary. *(Phase 2)*
 4. **BODY RECORD** — progress photo timeline, capture from phone camera, and a before/after comparison of any two dates.
 5. **REVIEW** — weekly digest: domain balance, streaks held and broken, journal excerpts. *(Phase 2)*
 
-**Navigation:** left rail on desktop with the six domains grouped under a `[ DOMAINS ]` label; on mobile a four-target bottom dock (Status · Domains · Grid · Body) where Domains opens a picker. Six domains is too many for a phone bottom bar — this is why.
+**Navigation:** left rail on desktop with the seven domains grouped under a `[ DOMAINS ]` label; on mobile a four-target bottom dock (Status · Domains · Grid · Body) where Domains opens a picker. Seven domains is far too many for a phone bottom bar — this is why.
 
 ## Visual system
 
@@ -137,7 +138,7 @@ Steps 1–2 are Spencer's; the rest is automated.
 
 ## Phasing
 
-**Phase 1 — The System (playable):** schema + RLS + Storage bucket · Google OAuth · app shell, router, design tokens · STATUS with quest/EXP/level/rank/NOTIFICATION · six domain pages · BODY RECORD · titles + penalty evaluation · journal capture · PWA, desktop shortcut, deploy.
+**Phase 1 — The System (playable):** schema + RLS + Storage bucket · Google OAuth · app shell, router, design tokens · STATUS with quest/EXP/level/rank/NOTIFICATION · seven domain pages · BODY RECORD · titles + penalty evaluation · journal capture · PWA, desktop shortcut, deploy.
 
 **Phase 2 — The Record:** GRID month matrix · REVIEW weekly digest · journal digest.
 
