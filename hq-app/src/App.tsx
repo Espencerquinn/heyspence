@@ -2,6 +2,7 @@ import { AuthGate } from './auth/AuthGate';
 import { Shell } from './ui/Shell';
 import { useRoute } from './router';
 import { Frame } from './ui/Frame';
+import { SystemProvider } from './state/SystemContext';
 
 function Routed() {
   const route = useRoute();
@@ -16,7 +17,9 @@ function Routed() {
 export default function App() {
   return (
     <AuthGate>
-      <Shell><Routed /></Shell>
+      <SystemProvider>
+        <Shell><Routed /></Shell>
+      </SystemProvider>
     </AuthGate>
   );
 }
