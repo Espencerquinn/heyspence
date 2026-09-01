@@ -1,11 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// Served as a subfolder of heyspence.me at /hq/. Build output is written to the
-// repo-root `hq/` dir (committed, like /jobs and /units) and served by the root
-// Netlify site.
+// Served at hq.heyspence.me on its own Cloudflare Pages project. Cloudflare
+// builds from source (no build output is committed); output goes to the
+// default `dist/` dir.
 export default defineConfig({
-  base: '/hq/',
+  base: '/',
   plugins: [react()],
-  build: { outDir: '../hq', emptyOutDir: true },
 });
