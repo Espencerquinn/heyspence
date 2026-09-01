@@ -3757,6 +3757,25 @@ A brand-new player must never be penalized. Add a test asserting that when there
 The `runCatchup` wrapper additionally returns early when the snapshot has no logs and no events, so the
 range is never even built for a new player.
 
+> **Amendments required by review (apply to Step 5's wiring):**
+>
+> 1. **Penalty XP must not be double-awarded.** `recordPenalty` is deduplicated by the `penalties`
+>    primary key and swallows `23505`, but the matching `award({kind:'penalty'})` has NO such guard —
+>    the DB's partial unique index covers `habit`, `quest_bonus` and `journal`, not `penalty`.
+>    `<StrictMode>` double-invokes the mount effect in dev, and two browser tabs do the same in
+>    production: both runs compute the same plan before either has written, and both award. The
+>    `penalties` table stays deduplicated, so `select count(*) from hq.penalties` looks correct while the
+>    ledger has double-counted. Fix: have `recordPenalty` report whether it actually inserted — use
+>    `.insert(p).select()` and treat an empty returned array as "already existed" — and award **only**
+>    when the insert was genuine.
+> 2. **The notice's "−N EXP" must report THIS run's loss, not the lifetime total.** `listPenalties()`
+>    selects every row with no date filter, so after the first catch-up the figure becomes the player's
+>    cumulative lifetime penalty and grows unboundedly wrong. Fix: have `runCatchup` return the total it
+>    actually applied (e.g. `Promise<number>`, `0` meaning nothing happened) and use that in the notice.
+> 3. **"STREAK → 0" must not be hardcoded.** A large backlog catch-up can leave the player with a real
+>    non-zero streak rebuilt since the last miss, so the panel would state something false. Derive the
+>    streak from the freshly reloaded snapshot and show the real value.
+
 - [ ] **Step 6: Verify catch-up is idempotent**
 
 Run: `cd hq-app && npm run dev`
