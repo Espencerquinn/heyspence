@@ -6,12 +6,13 @@ import { SystemProvider } from './state/SystemContext';
 import { NotificationProvider } from './state/useNotifications';
 import { NotificationHost } from './ui/NotificationHost';
 import { Status } from './screens/Status';
+import { DomainScreen } from './screens/DomainScreen';
 
 function Routed() {
   const route = useRoute();
   switch (route.name) {
     case 'status': return <Status />;
-    case 'domain': return <Frame title={route.domain}>DOMAIN</Frame>;
+    case 'domain': return <DomainScreen domain={route.domain} />;
     case 'body':   return <Frame title="Body Record">BODY</Frame>;
     default:       return <Frame title="Not found">No such page.</Frame>;
   }
