@@ -55,7 +55,19 @@ export function BodyRecord() {
     setBodyfatPct('');
 
     try {
-      await award({ amount: XP.photo, kind: 'photo', domain: 'physical', occurredOn: takenOn });
+      // Photo has no unique index backstop the way journal's (kind,
+      // occurred_on) index does (a migration to add one is queued but not
+      // yet applied — see hq-backend/supabase/migrations/0005). Enforce the
+      // once-per-day rule client-side in the meantime: check the CURRENT
+      // snapshot at submit time, mirroring how JournalCapture derives
+      // `isNew`, so re-uploading (e.g. a second pose the same day) never
+      // pays EXP twice for one day.
+      const alreadyAwarded = snapshot.events.some(
+        (ev) => ev.kind === 'photo' && ev.occurred_on === takenOn,
+      );
+      if (!alreadyAwarded) {
+        await award({ amount: XP.photo, kind: 'photo', domain: 'physical', occurredOn: takenOn });
+      }
       await reload();
       notify({ kind: 'RECORD UPDATED', huge: 'BODY RECORD', lead: 'Progress photo archived.' });
     } catch (err) {
