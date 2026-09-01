@@ -1,3 +1,5 @@
+# NOTE: heyspence.me is served by Cloudflare Pages, not Netlify. This file is
+# not read by anything and is kept only as historical config.
 [build]
   publish = "."
   command = ""
