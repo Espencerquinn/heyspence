@@ -45,10 +45,16 @@ function countLogsByDomain(habits: Habit[], logs: HabitLog[]): Record<Domain, nu
 /**
  * Runs the catch-up penalty evaluation over the gap between the player's
  * earliest history and yesterday. Idempotent: already-penalized dates are
- * skipped via `alreadyPenalized`, so re-running on every load never stacks
- * penalties. Returns whether any penalty was recorded (caller should reload).
+ * skipped via `alreadyPenalized`, and each write is additionally guarded by
+ * `recordPenalty`'s genuine-insert signal so a concurrent second run of this
+ * same effect (React StrictMode's double invocation in dev, or two open
+ * tabs in production) cannot double-award the XP loss even though the
+ * `penalties` primary key already prevents a duplicate row.
+ *
+ * Returns the total EXP actually applied by THIS call; 0 means nothing new
+ * happened (caller should skip the reload and the notice).
  */
-async function runCatchup(snap: Snapshot, today: string): Promise<boolean> {
+async function runCatchup(snap: Snapshot, today: string): Promise<number> {
   // Never penalize days before the player started playing. With seeded habits and
   // no history, a brand-new install would otherwise fire a PENALTY panel for
   // "yesterday" on the very first sign-in — punishing the user for a day they did
@@ -57,7 +63,7 @@ async function runCatchup(snap: Snapshot, today: string): Promise<boolean> {
     ...snap.logs.map((l) => l.log_date),
     ...snap.events.map((e) => e.occurred_on),
   ].sort()[0];
-  if (!started) return false;
+  if (!started) return 0;
 
   const plan = planCatchup({
     fromDate: started,
@@ -67,18 +73,25 @@ async function runCatchup(snap: Snapshot, today: string): Promise<boolean> {
     alreadyPenalized: new Set(snap.penalties.map((p) => p.penalty_date)),
     totalXp: playerTotal(snap.events),
   });
-  if (plan.penalties.length === 0) return false;
+  if (plan.penalties.length === 0) return 0;
 
+  let applied = 0;
   for (const p of plan.penalties) {
-    await recordPenalty({
+    const inserted = await recordPenalty({
       penalty_date: p.date, missed_habit_ids: p.missedHabitIds,
       xp_lost: p.xpLost, streak_before: 0,
     });
-    if (p.xpLost > 0) {
+    // Award — and count toward the reported total — only on a genuine
+    // insert. A conflict means a concurrent run already recorded (and
+    // awarded) this day; awarding again here would double-deduct EXP that
+    // the `penalties` table's own uniqueness can't protect, since the
+    // xp_events ledger has no matching unique index for kind='penalty'.
+    if (inserted && p.xpLost > 0) {
       await award({ amount: -p.xpLost, kind: 'penalty', occurredOn: p.date });
+      applied += p.xpLost;
     }
   }
-  return true;
+  return applied;
 }
 
 export function SystemProvider({ children }: { children: ReactNode }) {
@@ -101,16 +114,20 @@ export function SystemProvider({ children }: { children: ReactNode }) {
     (async () => {
       const snap = await loadSnapshot();
       if (cancelled) return;
-      const changed = await runCatchup(snap, today);
-      const fresh = changed ? await loadSnapshot() : snap;
+      const lost = await runCatchup(snap, today);
+      const fresh = lost > 0 ? await loadSnapshot() : snap;
       if (cancelled) return;
       setSnapshot(fresh);
-      if (changed) {
-        const lost = fresh.penalties.reduce((s, p) => s + p.xp_lost, 0);
+      if (lost > 0) {
+        // Real post-catch-up streak, not an assumed 0: a large backlog can
+        // still leave a non-zero streak once today's quest is cleared, and a
+        // partial gap (habits with nothing due) never severed it at all.
+        const freshIndex = buildLogIndex(fresh.logs);
+        const streak = derivePlayer(fresh.events, fresh.habits, freshIndex, today).questStreak;
         notify({
           tone: 'penalty', kind: 'PENALTY', huge: 'QUEST FAILED',
           lead: 'Days passed with the daily quest uncompleted. The streak has been severed.',
-          deltas: [{ text: `−${lost} EXP` }, { text: 'STREAK → 0' }],
+          deltas: [{ text: `−${lost} EXP` }, { text: `STREAK → ${streak}` }],
           fine: 'One missed day is data, not a verdict. Clear today to begin again.',
         });
       }

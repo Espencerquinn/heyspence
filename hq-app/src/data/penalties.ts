@@ -8,7 +8,19 @@ export async function listPenalties(): Promise<Penalty[]> {
   return data as Penalty[];
 }
 
-export async function recordPenalty(p: Penalty): Promise<void> {
-  const { error } = await supabase.from('penalties').insert(p);
-  if (error && error.code !== '23505') throw error;
+/**
+ * Inserts a penalty row. Returns true if this call actually inserted the
+ * row, false if it already existed (a 23505 conflict — e.g. a concurrent
+ * catch-up run, such as React StrictMode's double effect invocation in dev,
+ * or two open tabs in production). Callers must gate any follow-on ledger
+ * write (awarding the XP loss) on this return value, or a race can insert
+ * the penalty row once but double-deduct the EXP.
+ */
+export async function recordPenalty(p: Penalty): Promise<boolean> {
+  const { data, error } = await supabase.from('penalties').insert(p).select();
+  if (error) {
+    if (error.code === '23505') return false;   // already recorded by a concurrent run
+    throw error;
+  }
+  return (data?.length ?? 0) > 0;
 }
