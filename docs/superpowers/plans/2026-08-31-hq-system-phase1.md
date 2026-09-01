@@ -3950,6 +3950,23 @@ export function DomainScreen({ domain }: { domain: Domain }) {
 
 Each of these is a small presentational component; keep them under 120 lines and take all data through props plus `useSystem()`.
 
+> **Amendments required by review:**
+>
+> 1. **CRITICAL — milestone completion must be ONE-WAY.** As specified, the milestone checkbox is a
+>    bidirectional toggle but only the check direction awards `XP.milestone`, and the `xp_events` partial
+>    unique index covers `habit`/`quest_bonus`/`journal` — not `milestone`. Check → uncheck → check farms
+>    150 EXP per cycle through ordinary clicking. Make completion irreversible in the UI: once `done_at`
+>    is set, render the milestone as done and disable the control. This matches `completeTask` and goal
+>    completion, which are already one-way on this same screen. Award only when the milestone was
+>    genuinely not-done beforehand.
+> 2. **Goals, milestones and tasks need creation UI.** Step 4's prose gives a creation form only to
+>    `HabitEditor`, so `createGoal`, `createMilestone` and `createTask` end up with zero callers and the
+>    Quest Lines and Backlog panels can only ever display rows seeded out-of-band. That also strands the
+>    next task's "pick focus tasks from a domain page" — there is no way to get a task onto the page.
+>    Add compact forms in the same style as `HabitEditor`: **Add goal** (title + optional target date) in
+>    Quest Lines, **Add milestone** (title) inside each `GoalCard`, **Add task** (title + optional due
+>    date) in Backlog.
+
 - [ ] **Step 5: Route to it**
 
 In `App.tsx`, change the `domain` case to `<DomainScreen domain={route.domain} />`.
