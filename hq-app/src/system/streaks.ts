@@ -14,12 +14,6 @@ export function buildLogIndex(logs: ReadonlyArray<HabitLog>): Map<string, number
   return idx;
 }
 
-function countThisWeek(habit: Habit, date: string, index: Map<string, number>): number {
-  return eachDay(weekStart(date), date)
-    .filter((d) => (index.get(logKey(habit.id, d)) ?? 0) >= habit.target_count)
-    .length;
-}
-
 /**
  * Is this habit expected today?
  *  - daily      → always

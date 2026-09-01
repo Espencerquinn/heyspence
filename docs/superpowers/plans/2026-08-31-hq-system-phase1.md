@@ -29,6 +29,7 @@
 - **Dates are `YYYY-MM-DD` strings** throughout — never `Date` objects in logic, never UTC conversion. All day math goes through `src/system/dates.ts`.
 - **Single theme.** Dark only. No `prefers-color-scheme` branches.
 - **Vite base:** `/hq/`, `build.outDir: '../hq'`, `emptyOutDir: true`. The `hq/` output is committed.
+- **Every task verifies with `npm run build` (`tsc -b`), not only `npm test`.** Vitest runs through esbuild and does NOT type-check, so `noUnusedLocals`/`noUnusedParameters`/type errors pass the suite and fail the build. A green suite is not a green task.
 
 ## File Structure
 
@@ -1350,12 +1351,6 @@ export function buildLogIndex(logs: ReadonlyArray<HabitLog>): Map<string, number
   const idx = new Map<string, number>();
   for (const l of logs) idx.set(logKey(l.habit_id, l.log_date), l.count);
   return idx;
-}
-
-function countThisWeek(habit: Habit, date: string, index: Map<string, number>): number {
-  return eachDay(weekStart(date), date)
-    .filter((d) => (index.get(logKey(habit.id, d)) ?? 0) >= habit.target_count)
-    .length;
 }
 
 /**
