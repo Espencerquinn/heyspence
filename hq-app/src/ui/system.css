@@ -114,3 +114,165 @@
   box-shadow: var(--glow);
   outline: none;
 }
+
+/* ---------- player card (copied verbatim from the approved mockup) ---------- */
+.player__id { padding: var(--s5) var(--s4) var(--s4); text-align: center; }
+.player__name {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+.player__title {
+  margin: 6px 0 0;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--mute);
+}
+.player__title b { color: var(--sense); font-weight: 500; }
+
+.lv {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s4);
+  margin-top: var(--s4);
+}
+.lv__num {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--system);
+  text-shadow: 0 0 18px rgba(90, 216, 255, 0.55);
+  font-variant-numeric: tabular-nums;
+}
+.lv__num small {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  color: var(--mute);
+  display: block;
+  text-shadow: none;
+}
+.rank {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--system);
+  box-shadow: var(--glow), inset 0 0 14px rgba(90, 216, 255, 0.18);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--system);
+  clip-path: polygon(11px 0, 100% 0, 100% calc(100% - 11px), calc(100% - 11px) 100%, 0 100%, 0 11px);
+}
+.rank small {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  color: var(--mute);
+  font-weight: 500;
+}
+
+.xp { padding: 0 var(--s4) var(--s4); }
+.xp__row {
+  display: flex;
+  justify-content: space-between;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--mute);
+  margin-bottom: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.xp__track {
+  height: 7px;
+  background: rgba(90, 216, 255, 0.08);
+  border: 1px solid var(--line-dim);
+  position: relative;
+  overflow: hidden;
+}
+.xp__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--system-lo), var(--system));
+  box-shadow: 0 0 12px rgba(90, 216, 255, 0.75);
+  transition: width 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.xp__fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  animation: sweep 2.6s linear infinite;
+}
+@keyframes sweep { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+/* ---------- stat block ---------- */
+.stats { padding: var(--s4); border-top: 1px solid var(--line-dim); }
+.stats__label {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  color: var(--mute-lo);
+  margin-bottom: var(--s3);
+}
+.stat {
+  display: grid;
+  grid-template-columns: 48px 30px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--s3);
+  padding: 5px 0;
+}
+.stat__key {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--k);
+}
+.stat__val {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+  color: var(--ether);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+.stat__val.bump { color: var(--k); text-shadow: 0 0 10px var(--k); }
+.segs { display: flex; gap: 2px; }
+.seg {
+  flex: 1;
+  height: 9px;
+  background: rgba(90, 216, 255, 0.07);
+  transition: background 0.25s, box-shadow 0.25s;
+}
+.seg.on {
+  background: var(--k);
+  box-shadow: 0 0 6px var(--k);
+}
+.stat__note {
+  grid-column: 2 / -1;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--penalty);
+  padding-top: 2px;
+}
+
+.streak {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--s3) var(--s4);
+  border-top: 1px solid var(--line-dim);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--mute);
+}
+.streak b { color: var(--system); font-weight: 700; font-size: 13px; }
