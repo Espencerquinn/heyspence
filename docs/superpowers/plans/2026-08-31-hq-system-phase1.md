@@ -14,7 +14,7 @@
 
 - **Owner email:** `espencer.quinn@gmail.com` — hardcoded in both the client AuthGate and the DB `hq.is_owner()` function. Never parameterize.
 - **Supabase project:** `heyspence`, ref `utvurjzrvnghbmzjrrhq`, URL `https://utvurjzrvnghbmzjrrhq.supabase.co`.
-- **Schema:** all tables in `hq`, never `public`. The `hq` schema MUST be added to `[api] schemas` in `config.toml` or PostgREST cannot see it.
+- **Schema:** all tables in `hq`, never `public`. The `hq` schema must be added to **Exposed schemas** in the Supabase dashboard (Project Settings → API) or PostgREST cannot see it. **Never run `supabase config push` from `hq-backend`** — it would overwrite the live auth config that the existing job board depends on.
 - **Seven domains, fixed:** `physical`, `intellectual`, `spiritual`, `social`, `musical`, `financial`, `marital` — a Postgres enum, not a text column.
 - **Stat keys:** `STR`, `INT`, `WIS`, `CHA`, `SENSE`, `FOR`, `BND` in that display order.
 - **Stat colors:** `STR #5ad8ff` · `INT #7f9cff` · `WIS #b28cff` · `CHA #4fe3b0` · `SENSE #ff9ad5` · `FOR #ffc46b` · `BND #ff7a6b`.
@@ -1804,9 +1804,13 @@ supabase init
 supabase link --project-ref utvurjzrvnghbmzjrrhq
 ```
 
-- [ ] **Step 2: Expose the `hq` schema to PostgREST**
+- [ ] **Step 2: Record the intended config — but DO NOT push it**
 
-In `hq-backend/supabase/config.toml`, set `project_id` and add `hq` to the API schemas. **Without this, every query returns "schema must be one of the following: public" and nothing works.**
+In `hq-backend/supabase/config.toml`, set `project_id` and add `hq` to the API schemas, for local-dev correctness and as documentation of intent.
+
+**Never run `supabase config push` from `hq-backend`.** `config push` writes the WHOLE config file, not just the `[api]` section. The live project's auth settings were pushed from `jobs-backend/supabase/config.toml` (`site_url = "https://www.heyspence.me/jobs/"`); pushing a fresh config from here would overwrite them and break sign-in for the existing job board.
+
+Exposing the `hq` schema is instead a one-time manual dashboard step: **Supabase → `heyspence` → Project Settings → API → Exposed schemas → add `hq`**. Until that is done, PostgREST returns "schema must be one of the following: public" for every HQ query. Migrations (`supabase db push`) are unaffected and safe to run now — they are additive DDL in a new schema and touch neither `public` (job board) nor `case_hub`.
 
 ```toml
 project_id = "heyspence"
@@ -1982,8 +1986,10 @@ end $$;
 
 - [ ] **Step 5: Push the migrations**
 
-Run: `cd hq-backend && supabase db push && supabase config push`
-Expected: both migrations applied; config push reports the API schemas updated.
+Run: `cd hq-backend && supabase db push`
+Expected: both migrations applied.
+
+Do **not** run `supabase config push` — see Step 2.
 
 - [ ] **Step 6: Verify the schema is reachable and locked**
 
@@ -2001,7 +2007,7 @@ select hq.is_owner();  -- expect false when run as an anon/other role
 select count(*) from hq.habits;  -- expect 0
 ```
 
-Expected: the tables exist, `hq.is_owner()` exists, RLS is enabled on all 10 tables.
+Expected: the tables exist, `hq.is_owner()` exists, RLS is enabled on all 10 tables. PostgREST will not see the schema until the manual dashboard step in Step 2 is done; that does not block these migrations.
 
 - [ ] **Step 7: Commit**
 
@@ -2908,7 +2914,7 @@ import { SystemProvider } from './state/SystemContext';
 ```
 
 Run: `cd hq-app && npm run dev`
-Expected: after sign-in the shell renders (no "LOADING PLAYER DATA…" stuck state), meaning the `hq` schema is reachable and RLS admits the owner. If it hangs on loading, the `hq` schema is not in `config.toml` api.schemas.
+Expected: after sign-in the shell renders (no "LOADING PLAYER DATA…" stuck state), meaning the `hq` schema is reachable and RLS admits the owner. If it hangs on loading, the `hq` schema has not been added to **Exposed schemas** in the Supabase dashboard (Project Settings → API) — see Task 9 Step 2.
 
 - [ ] **Step 8: Run the full suite and commit**
 
