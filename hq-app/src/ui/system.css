@@ -825,3 +825,57 @@ select.field { cursor: pointer; }
   font-size: 10px;
   letter-spacing: 0.14em;
 }
+
+/* ---------- status column (STATUS screen's right rail) ---------- */
+.status__col { display: flex; flex-direction: column; gap: var(--s5); min-width: 0; }
+
+/* ---------- journal capture ---------- */
+.journal { padding: var(--s4); display: flex; flex-direction: column; gap: var(--s3); }
+.journal__label {
+  margin: 0;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--mute);
+  line-height: 1.5;
+}
+.journal__input {
+  appearance: none;
+  resize: vertical;
+  background: rgba(90, 216, 255, 0.04);
+  border: 1px solid var(--line);
+  color: var(--ether);
+  font-family: "Chakra Petch", sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+  padding: var(--s3);
+}
+.journal__input:focus-visible { outline: 1px solid var(--system); outline-offset: 1px; }
+.journal__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+.journal__mood { display: flex; gap: 6px; }
+.mood {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid var(--line-dim);
+  color: var(--mute);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+.mood:hover { border-color: var(--line); color: var(--ether); }
+.mood:focus-visible { outline: 1px solid var(--system); outline-offset: 1px; }
+.mood--on {
+  color: var(--system);
+  border-color: var(--system);
+  background: rgba(90, 216, 255, 0.1);
+  box-shadow: var(--glow-s);
+}
