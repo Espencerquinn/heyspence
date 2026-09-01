@@ -7,13 +7,14 @@ import { NotificationProvider } from './state/useNotifications';
 import { NotificationHost } from './ui/NotificationHost';
 import { Status } from './screens/Status';
 import { DomainScreen } from './screens/DomainScreen';
+import { BodyRecord } from './screens/BodyRecord';
 
 function Routed() {
   const route = useRoute();
   switch (route.name) {
     case 'status': return <Status />;
     case 'domain': return <DomainScreen domain={route.domain} />;
-    case 'body':   return <Frame title="Body Record">BODY</Frame>;
+    case 'body':   return <BodyRecord />;
     default:       return <Frame title="Not found">No such page.</Frame>;
   }
 }

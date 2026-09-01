@@ -879,3 +879,82 @@ select.field { cursor: pointer; }
   background: rgba(90, 216, 255, 0.1);
   box-shadow: var(--glow-s);
 }
+
+/* ---------- body record ---------- */
+.body-record {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s5);
+}
+
+.photo-form { padding: var(--s4); display: flex; flex-direction: column; gap: var(--s3); }
+.photo-form__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3);
+  align-items: center;
+}
+
+/* ---------- photo timeline ---------- */
+.timeline { padding: var(--s4); display: flex; flex-direction: column; gap: var(--s4); }
+.timeline__group { display: flex; flex-direction: column; gap: var(--s3); }
+.timeline__date {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--mute);
+}
+.timeline__row { display: flex; flex-wrap: wrap; gap: var(--s3); }
+
+.thumb {
+  width: 108px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.thumb__img,
+.thumb__placeholder {
+  width: 108px;
+  height: 108px;
+  object-fit: cover;
+  border: 1px solid var(--line-dim);
+  background: rgba(90, 216, 255, 0.04);
+}
+.thumb__pose {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mute-lo);
+  text-align: center;
+}
+
+/* ---------- photo compare ---------- */
+.compare {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s4);
+  padding: var(--s4);
+}
+.compare__side { display: flex; flex-direction: column; gap: var(--s3); min-width: 0; }
+.compare__frame {
+  aspect-ratio: 3 / 4;
+  border: 1px solid var(--line);
+  overflow: hidden;
+  background: rgba(90, 216, 255, 0.04);
+}
+.compare__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.compare__placeholder { width: 100%; height: 100%; }
+.compare__caption {
+  margin: 0;
+  text-align: center;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--mute);
+}
+
+@media (max-width: 640px) {
+  .compare { grid-template-columns: minmax(0, 1fr); }
+}
