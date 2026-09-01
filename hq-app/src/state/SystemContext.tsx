@@ -59,11 +59,18 @@ async function runCatchup(snap: Snapshot, today: string): Promise<number> {
   // no history, a brand-new install would otherwise fire a PENALTY panel for
   // "yesterday" on the very first sign-in — punishing the user for a day they did
   // not have the app. If there is no history at all, there is nothing to catch up on.
-  const started = [
+  const earliest = [
     ...snap.logs.map((l) => l.log_date),
     ...snap.events.map((e) => e.occurred_on),
   ].sort()[0];
-  if (!started) return 0;
+  if (!earliest) return 0;
+
+  // `snap.logs` is windowed to 400 days (see loadSnapshot) but `snap.events`
+  // is not, so an old event (e.g. a back-dated photo, see BodyRecord's date
+  // bounds) can make `earliest` predate the log window by years. Clamp to
+  // the same 400-day horizon so catch-up never tries to penalize a gap the
+  // habit log can't even see into.
+  const started = [earliest, addDays(today, -400)].sort().pop()!;
 
   const plan = planCatchup({
     fromDate: started,
@@ -212,7 +219,7 @@ export function SystemProvider({ children }: { children: ReactNode }) {
         longestStreak: after.questStreak,
         statLevels: after.statLevels,
         domainLogCounts: countLogsByDomain(next.habits, next.logs),
-        journalCount: 0,
+        journalCount: next.journal.length,
       };
       const unlocked = new Set(next.titles.map((t) => t.code));
       const unlockedNow: TitleRow[] = [];

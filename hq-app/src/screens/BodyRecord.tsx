@@ -5,7 +5,7 @@ import { useSystem } from '../state/SystemContext';
 import { useNotify } from '../state/useNotifications';
 import { signedUrlFor, uploadPhoto } from '../data/photos';
 import { award } from '../data/xpEvents';
-import { todayISO } from '../system/dates';
+import { addDays, todayISO } from '../system/dates';
 import { XP } from '../system/xp';
 import type { Pose, ProgressPhoto } from '../types';
 
@@ -15,9 +15,14 @@ export function BodyRecord() {
   const { snapshot, reload } = useSystem();
   const notify = useNotify();
   const photos = snapshot.photos;
+  const today = todayISO();
+  // Matches the 400-day catch-up horizon (see SystemContext's runCatchup):
+  // a photo dated outside this window could otherwise make the next load
+  // try to penalize years of "missed" days.
+  const minTakenOn = addDays(today, -400);
 
   const fileRef = useRef<HTMLInputElement>(null);
-  const [takenOn, setTakenOn] = useState(todayISO());
+  const [takenOn, setTakenOn] = useState(today);
   const [pose, setPose] = useState<Pose>('front');
   const [weightLb, setWeightLb] = useState('');
   const [bodyfatPct, setBodyfatPct] = useState('');
@@ -85,6 +90,7 @@ export function BodyRecord() {
                  aria-label="Progress photo" onChange={(e) => setHasFile(!!e.target.files?.[0])} />
           <div className="photo-form__row">
             <input className="field field--date" type="date" value={takenOn}
+                   min={minTakenOn} max={today}
                    onChange={(e) => setTakenOn(e.target.value)} aria-label="Date taken" />
             <select className="field" value={pose} aria-label="Pose"
                     onChange={(e) => setPose(e.target.value as Pose)}>

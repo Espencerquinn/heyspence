@@ -58,8 +58,7 @@ export function DailyQuest() {
       <p className="warn">
         <span>
           <b>WARNING</b> — Failure to complete the daily quest resets the active
-          streak and applies a −40 EXP debt. A penalty quest will be issued the
-          following day.
+          streak and applies a −40 EXP debt.
         </span>
       </p>
     </Frame>
