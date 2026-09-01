@@ -97,7 +97,7 @@ statLevel(domainXp) = floor( sqrt(domainXp / 12) )
 
 **Daily Quest.** Derived, never stored — it's the set of habits due today per their cadence. Full clear writes one `quest_bonus` event.
 
-**Penalty evaluation.** Runs lazily on app load: for each date between the last evaluated day and yesterday, if the day had ≥1 due habit and any went unlogged, write a `penalties` row and a −40 `penalty` xp_event. **The negative event is clamped so total EXP never drops below the current level's threshold** — you can lose progress, never a level. Streak resets to 0; the next day's quest marks those objectives as a penalty quest at 2× target.
+**Penalty evaluation.** Runs lazily on app load: for each date between the last evaluated day and yesterday, if the day had ≥1 due habit and any went unlogged, write a `penalties` row and a −40 `penalty` xp_event. **The negative event is clamped so total EXP never drops below the current level's threshold** — you can lose progress, never a level. Streak resets to 0. *(The 2x-target **penalty quest** is **descoped to Phase 2**; Phase 1 applies the EXP debt and streak reset only, and the UI must not promise otherwise.)*
 
 **Titles (seed set).** *The Awakened* (first 7-day streak) · *Iron Will* (30-day streak) · *Monarch of Iron* (100 gym logs) · *Well-Read* (50 reading logs) · *Perfect Tempo* (30 practice sessions) · *The Devout* (30 spiritual logs) · *Beloved* (25 social objectives) · *Solvent* (60 straight days of expense logging) · *Two as One* (60 marital days) · *Balanced* (all seven stats ≥ 10) · *Shadow Sovereign* (all seven stats ≥ 20) · *Chronicler* (100 journal entries) · *The Persistent* (recover a streak within 2 days of a penalty).
 
@@ -121,8 +121,8 @@ Locked by the approved mockup.
 - **System cyan:** `--system #5ad8ff`; text `--ether #dff2ff`; secondary `--mute #6f8ba6`; `--penalty #ff4d6a`.
 - **Type:** **Chakra Petch** for display and UI (bevelled corners echo the frame language); **JetBrains Mono** for all bracketed data — `[6420/10000]` must be mono; Chakra Petch italic for the System's proclamations.
 - **Frames:** 1px cyan hairline + inner glow + four 13px corner brackets.
-- **Motion:** NOTIFICATION snaps in with a scaleY bloom; EXP bars fill on a 0.7s ease; a canvas mote field drifts behind everything. All of it respects `prefers-reduced-motion`.
-- **Sound:** WebAudio blips on tick, an arpeggio on level-up, a two-note drop on penalty. User-gesture triggered only, with a mute toggle.
+- **Motion:** NOTIFICATION snaps in with a scaleY bloom; EXP bars fill on a 0.7s ease; a canvas mote field drifts behind everything *(**descoped to Phase 2**; Phase 1 ships the static grille and vignette only)*. All of it respects `prefers-reduced-motion`.
+- **Sound:** ~~WebAudio blips on tick, an arpeggio on level-up, a two-note drop on penalty.~~ **Descoped to Phase 2** — not built in Phase 1.
 
 ## Delivery
 
