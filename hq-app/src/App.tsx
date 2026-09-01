@@ -1,3 +1,9 @@
+import { AuthGate } from './auth/AuthGate';
+
 export default function App() {
-  return <div style={{ color: '#5ad8ff', background: '#04070f', minHeight: '100vh' }}>SYSTEM ONLINE</div>;
+  return (
+    <AuthGate>
+      <div style={{ color: '#5ad8ff', padding: 24 }}>SYSTEM ONLINE</div>
+    </AuthGate>
+  );
 }
