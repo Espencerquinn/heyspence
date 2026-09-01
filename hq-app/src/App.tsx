@@ -3,6 +3,8 @@ import { Shell } from './ui/Shell';
 import { useRoute } from './router';
 import { Frame } from './ui/Frame';
 import { SystemProvider } from './state/SystemContext';
+import { NotificationProvider } from './state/useNotifications';
+import { NotificationHost } from './ui/NotificationHost';
 import { Status } from './screens/Status';
 
 function Routed() {
@@ -18,9 +20,12 @@ function Routed() {
 export default function App() {
   return (
     <AuthGate>
-      <SystemProvider>
-        <Shell><Routed /></Shell>
-      </SystemProvider>
+      <NotificationProvider>
+        <SystemProvider>
+          <Shell><Routed /></Shell>
+          <NotificationHost />
+        </SystemProvider>
+      </NotificationProvider>
     </AuthGate>
   );
 }
