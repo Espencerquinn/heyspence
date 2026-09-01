@@ -1,16 +1,17 @@
 import { supabase } from '../supabaseClient';
+import { fetchAllPages } from './fetchAll';
 import type { Goal, Milestone } from '../types';
 
 export async function listGoals(): Promise<Goal[]> {
-  const { data, error } = await supabase.from('goals').select('*').order('target_date');
-  if (error) throw error;
-  return data as Goal[];
+  return fetchAllPages<Goal>((from, to) =>
+    supabase.from('goals').select('*').order('target_date').range(from, to),
+  );
 }
 
 export async function listMilestones(): Promise<Milestone[]> {
-  const { data, error } = await supabase.from('milestones').select('*').order('sort_order');
-  if (error) throw error;
-  return data as Milestone[];
+  return fetchAllPages<Milestone>((from, to) =>
+    supabase.from('milestones').select('*').order('sort_order').range(from, to),
+  );
 }
 
 export async function createGoal(g: Omit<Goal, 'id' | 'completed_at'>): Promise<Goal> {

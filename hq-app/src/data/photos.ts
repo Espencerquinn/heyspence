@@ -1,14 +1,18 @@
 import { supabase } from '../supabaseClient';
+import { fetchAllPages } from './fetchAll';
 import { resizeImage } from '../system/resize';
 import type { Pose, ProgressPhoto } from '../types';
 
 const BUCKET = 'hq-photos';
 
 export async function listPhotos(): Promise<ProgressPhoto[]> {
-  const { data, error } = await supabase
-    .from('progress_photos').select('*').order('taken_on', { ascending: false });
-  if (error) throw error;
-  return data as ProgressPhoto[];
+  return fetchAllPages<ProgressPhoto>((from, to) =>
+    supabase
+      .from('progress_photos')
+      .select('*')
+      .order('taken_on', { ascending: false })
+      .range(from, to),
+  );
 }
 
 export interface UploadInput {

@@ -1,13 +1,15 @@
 import { supabase } from '../supabaseClient';
+import { fetchAllPages } from './fetchAll';
 import type { JournalEntry } from '../types';
 
 export async function listEntries(): Promise<JournalEntry[]> {
-  const { data, error } = await supabase
-    .from('journal_entries')
-    .select('entry_date, body, mood, energy, lesson')
-    .order('entry_date', { ascending: false });
-  if (error) throw error;
-  return data as JournalEntry[];
+  return fetchAllPages<JournalEntry>((from, to) =>
+    supabase
+      .from('journal_entries')
+      .select('entry_date, body, mood, energy, lesson')
+      .order('entry_date', { ascending: false })
+      .range(from, to),
+  );
 }
 
 export async function getEntry(date: string): Promise<JournalEntry | null> {

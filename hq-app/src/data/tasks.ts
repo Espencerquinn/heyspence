@@ -1,11 +1,16 @@
 import { supabase } from '../supabaseClient';
+import { fetchAllPages } from './fetchAll';
 import type { Task } from '../types';
 
 export async function listTasks(): Promise<Task[]> {
-  const { data, error } = await supabase
-    .from('tasks').select('*').eq('status', 'open').order('due_date', { nullsFirst: false });
-  if (error) throw error;
-  return data as Task[];
+  return fetchAllPages<Task>((from, to) =>
+    supabase
+      .from('tasks')
+      .select('*')
+      .eq('status', 'open')
+      .order('due_date', { nullsFirst: false })
+      .range(from, to),
+  );
 }
 
 export async function createTask(t: Omit<Task, 'id' | 'completed_at' | 'status'>): Promise<void> {

@@ -1,12 +1,17 @@
 import { supabase } from '../supabaseClient';
+import { fetchAllPages } from './fetchAll';
 import type { HabitLog } from '../types';
 
 /** Logs from `sinceISO` forward. 400 days back covers the longest streak scan. */
 export async function listLogs(sinceISO: string): Promise<HabitLog[]> {
-  const { data, error } = await supabase
-    .from('habit_logs').select('habit_id, log_date, count').gte('log_date', sinceISO);
-  if (error) throw error;
-  return data as HabitLog[];
+  return fetchAllPages<HabitLog>((from, to) =>
+    supabase
+      .from('habit_logs')
+      .select('habit_id, log_date, count')
+      .gte('log_date', sinceISO)
+      .order('log_date')
+      .range(from, to),
+  );
 }
 
 export async function setLog(habitId: string, date: string, count: number): Promise<void> {

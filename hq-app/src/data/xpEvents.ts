@@ -1,11 +1,14 @@
 import { supabase } from '../supabaseClient';
+import { fetchAllPages } from './fetchAll';
 import type { Domain, XpEvent, XpKind } from '../types';
 
 export async function listEvents(): Promise<XpEvent[]> {
-  const { data, error } = await supabase
-    .from('xp_events').select('id, domain, amount, kind, ref_id, occurred_on');
-  if (error) throw error;
-  return data as XpEvent[];
+  return fetchAllPages<XpEvent>((from, to) =>
+    supabase
+      .from('xp_events')
+      .select('id, domain, amount, kind, ref_id, occurred_on')
+      .range(from, to),
+  );
 }
 
 export interface AwardInput {
