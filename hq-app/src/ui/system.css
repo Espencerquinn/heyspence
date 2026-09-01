@@ -608,14 +608,22 @@
   color: var(--penalty);
 }
 
-/* ---------- habit row (Habits panel, read-only list) ---------- */
+/* ---------- habit row (Habits panel) ---------- */
 .habit-row {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: var(--s3);
   padding: var(--s3) var(--s4);
   border-bottom: 1px solid var(--line-dim);
   font-size: 13px;
+}
+.habit-row__info {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  min-width: 0;
 }
 .habit-row__name { font-weight: 600; letter-spacing: 0.04em; }
 .habit-row__streak {
@@ -625,6 +633,12 @@
   color: var(--k, var(--system));
   white-space: nowrap;
 }
+.habit-row__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+.habit-row .inline-error { flex-basis: 100%; padding: 6px 0 0; }
 
 /* ---------- goal card (Quest Lines panel) ---------- */
 .goal {

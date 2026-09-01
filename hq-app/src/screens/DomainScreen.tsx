@@ -3,13 +3,13 @@ import { GoalCard } from '../ui/GoalCard';
 import { GoalForm } from '../ui/GoalForm';
 import { TaskList } from '../ui/TaskList';
 import { HabitEditor } from '../ui/HabitEditor';
+import { HabitRow } from '../ui/HabitRow';
 import { useSystem } from '../state/SystemContext';
 import { DOMAIN_COLOR, DOMAIN_LABEL, STAT_OF, type Domain } from '../types';
 import { statProgress } from '../system/stats';
-import { streakFor } from '../system/streaks';
 
 export function DomainScreen({ domain }: { domain: Domain }) {
-  const { snapshot, player, index, today } = useSystem();
+  const { snapshot, player } = useSystem();
   const stat = STAT_OF[domain];
   const progress = statProgress(player.domainXp[domain]);
   const goals = snapshot.goals.filter((g) => g.domain === domain && g.status === 'active');
@@ -36,14 +36,7 @@ export function DomainScreen({ domain }: { domain: Domain }) {
       </Frame>
 
       <Frame title="Habits" meta={`${habits.length} TRACKED`}>
-        {habits.map((h) => (
-          <div className="habit-row" key={h.id}>
-            <span className="habit-row__name">{h.name}</span>
-            <span className="habit-row__streak">
-              {streakFor(h, index, today)} DAY STREAK
-            </span>
-          </div>
-        ))}
+        {habits.map((h) => <HabitRow key={h.id} habit={h} />)}
         <HabitEditor domain={domain} />
       </Frame>
 
