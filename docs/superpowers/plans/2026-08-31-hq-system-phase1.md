@@ -3676,10 +3676,18 @@ import { addDays } from '../system/dates';
 import { playerTotal } from '../system/xp';
 
 async function runCatchup(snap: Snapshot, today: string): Promise<boolean> {
-  const earliest = snap.logs.map((l) => l.log_date).sort()[0]
-    ?? addDays(today, -1);
+  // Never penalize days before the player started playing. With seeded habits and
+  // no history, a brand-new install would otherwise fire a PENALTY panel for
+  // "yesterday" on the very first sign-in — punishing the user for a day they did
+  // not have the app. If there is no history at all, there is nothing to catch up on.
+  const started = [
+    ...snap.logs.map((l) => l.log_date),
+    ...snap.events.map((e) => e.occurred_on),
+  ].sort()[0];
+  if (!started) return false;
+
   const plan = planCatchup({
-    fromDate: earliest,
+    fromDate: started,
     throughDate: addDays(today, -1),   // never penalize today; it is still live
     habits: snap.habits,
     index: buildLogIndex(snap.logs),
@@ -3728,6 +3736,26 @@ useEffect(() => {
 ```
 
 **Note:** this replaces the simple `void reload()` mount effect from Task 13. Keep `reload` for post-mutation refreshes.
+
+- [ ] **Step 5b: Add a first-run test to `catchup.test.ts`**
+
+A brand-new player must never be penalized. Add a test asserting that when there is no history at all,
+`planCatchup` produces no penalties:
+
+```ts
+  it('plans nothing for a player with no history at all', () => {
+    const plan = planCatchup({
+      fromDate: '2026-08-01', throughDate: '2026-08-30',
+      habits: [habit('a')], index: buildLogIndex([]),
+      alreadyPenalized: new Set(), totalXp: 0,
+    });
+    // No headroom and no history: every penalty must be zero-cost.
+    expect(plan.penalties.every((p) => p.xpLost === 0)).toBe(true);
+  });
+```
+
+The `runCatchup` wrapper additionally returns early when the snapshot has no logs and no events, so the
+range is never even built for a new player.
 
 - [ ] **Step 6: Verify catch-up is idempotent**
 
