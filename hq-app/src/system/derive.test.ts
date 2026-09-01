@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { derivePlayer, questStreakFrom } from './derive';
+import { derivePlayer, isDayCleared, questStreakFrom } from './derive';
 import { buildLogIndex } from './streaks';
 import { cumulativeXpFor } from './levels';
 import type { Habit, HabitLog, XpEvent } from '../types';
@@ -50,6 +50,23 @@ describe('derivePlayer', () => {
     const p = derivePlayer(
       [ev(1000, 'physical'), ev(-40, null, 'penalty')], [], buildLogIndex([]), '2026-08-31');
     expect(p.totalXp).toBe(960);
+  });
+
+  it('floors the total at zero when a penalty exceeds accumulated xp', () => {
+    const p = derivePlayer(
+      [ev(40, 'physical'), ev(-500, null, 'penalty')], [], buildLogIndex([]), '2026-08-31');
+    expect(p.totalXp).toBe(0);
+    expect(p.level).toBe(1);
+    expect(Object.is(p.totalXp, 0)).toBe(true);
+  });
+});
+
+describe('isDayCleared', () => {
+  it('is false for a day with no due habits', () => {
+    // Habit due only on Mondays (2026-08-31 is a Monday; 2026-08-30 is Sunday).
+    const hs = [habit('a', { cadence: 'weekdays', weekdays: [1] })];
+    const idx = buildLogIndex([]);
+    expect(isDayCleared(hs, idx, '2026-08-30')).toBe(false);
   });
 });
 

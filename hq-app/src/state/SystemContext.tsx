@@ -27,6 +27,10 @@ export function SystemProvider({ children }: { children: ReactNode }) {
   const today = todayISO();
 
   const reload = useCallback(async () => {
+    // Clear any prior failure first: without this, one transient error strands
+    // the UI in the SYSTEM ERROR branch permanently, and the retry control
+    // lives inside the subtree that stopped rendering.
+    setError('');
     try { setSnapshot(await loadSnapshot()); }
     catch (e) { setError(e instanceof Error ? e.message : String(e)); }
   }, []);
@@ -53,7 +57,14 @@ export function SystemProvider({ children }: { children: ReactNode }) {
     await reload();
   }, [today, index, reload]);
 
-  if (error) return <div className="boot boot--error">SYSTEM ERROR — {error}</div>;
+  if (error) {
+    return (
+      <div className="boot boot--error">
+        <p>SYSTEM ERROR — {error}</p>
+        <button className="btn" onClick={() => void reload()}>Retry</button>
+      </div>
+    );
+  }
   if (!snapshot) return <div className="boot">LOADING PLAYER DATA…</div>;
 
   return (
