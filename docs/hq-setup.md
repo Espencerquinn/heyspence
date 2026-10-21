@@ -129,7 +129,7 @@ RLS is what protects the data.
 2. Repository: `Espencerquinn/heyspence`
 3. Build settings:
    - **Project name:** `hq-heyspence`
-   - **Production branch:** `main`
+   - **Production branch:** `hq-system` (as configured; deploy by fast-forwarding it: `git push origin main:hq-system`)
    - **Framework preset:** None
    - **Build command:** `cd hq-app && npm ci && npm run build`
    - **Build output directory:** `hq-app/dist`
