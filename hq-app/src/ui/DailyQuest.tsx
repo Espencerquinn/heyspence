@@ -3,6 +3,7 @@ import { Frame } from './Frame';
 import { ObjectiveRow } from './ObjectiveRow';
 import { useSystem } from '../state/SystemContext';
 import { dueHabitsOn, isMetOn, logKey } from '../system/streaks';
+import { isProtocol } from '../system/protocol';
 import type { Habit } from '../types';
 
 /** Quest names cycle by date so the panel does not read identically forever. */
@@ -13,8 +14,11 @@ const QUEST_NAMES = [
 
 export function DailyQuest() {
   const { snapshot, index, today, tickHabit } = useSystem();
-  const due = dueHabitsOn(snapshot.habits, today, index);
-  const cleared = due.filter((h) => isMetOn(h, today, index)).length;
+  // Meds and supplements render in the Morning Protocol panel; they still count
+  // toward a full clear (SystemContext checks every due habit), so the meta shows both.
+  const allDue = dueHabitsOn(snapshot.habits, today, index);
+  const due = allDue.filter((h) => !isProtocol(h));
+  const cleared = allDue.filter((h) => isMetOn(h, today, index)).length;
   // Tracks the one habit currently mid-tick so its button can be disabled
   // while the await gap in tickHabit is in flight — otherwise a fast double
   // click can both observe `cleared && !bonusAlready` and both insert the
@@ -34,7 +38,7 @@ export function DailyQuest() {
   }
 
   return (
-    <Frame title="Daily Quest" meta={`${cleared} / ${due.length} CLEARED`}>
+    <Frame title="Daily Quest" meta={`${cleared} / ${allDue.length} CLEARED`}>
       <div className="quest__intro">
         <h2 className="quest__name">[Daily Quest: <em>{questName}</em>] has arrived.</h2>
         <p className="quest__sub">RESETS AT MIDNIGHT · BONUS +100 EXP ON FULL CLEAR</p>

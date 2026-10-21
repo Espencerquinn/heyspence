@@ -5,6 +5,9 @@ export type Route =
   | { name: 'status' }
   | { name: 'domain'; domain: Domain }
   | { name: 'body' }
+  | { name: 'protocol' }
+  | { name: 'fuel' }
+  | { name: 'train' }
   | { name: 'notFound' };
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, ''); // '/hq'
@@ -14,6 +17,9 @@ export function parse(pathname: string): Route {
   const seg = rest.replace(/^\/|\/$/g, '');
   if (seg === '' || seg === 'status') return { name: 'status' };
   if (seg === 'body') return { name: 'body' };
+  if (seg === 'protocol') return { name: 'protocol' };
+  if (seg === 'fuel') return { name: 'fuel' };
+  if (seg === 'train') return { name: 'train' };
   const d = DOMAINS.find((x) => x === seg);
   if (d) return { name: 'domain', domain: d };
   return { name: 'notFound' };

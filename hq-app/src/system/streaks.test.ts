@@ -134,6 +134,21 @@ describe('streakFor', () => {
   });
 });
 
+describe('isDueOn — active_from', () => {
+  it('is never due before the habit became active', () => {
+    const idx = buildLogIndex([]);
+    const h: Habit = { ...daily(), active_from: '2026-09-02' };
+    expect(isDueOn(h, '2026-09-01', idx)).toBe(false);
+    expect(isDueOn(h, '2026-09-02', idx)).toBe(true);
+  });
+
+  it('does not break a streak on days before it existed', () => {
+    const h: Habit = { ...daily(), active_from: '2026-08-30' };
+    const idx = buildLogIndex(logs(['h1', '2026-08-30'], ['h1', '2026-08-31']));
+    expect(streakFor(h, idx, '2026-08-31')).toBe(2);
+  });
+});
+
 describe('dueHabitsOn', () => {
   it('filters to due, non-archived habits in sort order', () => {
     const idx = buildLogIndex([]);

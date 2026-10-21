@@ -42,6 +42,10 @@ export function Rail() {
       {item('domains', 'Domains', '', isDomain, 'only-mobile',
         () => setPickerOpen(true), domainsBtnRef)}
 
+      <div className="rail__group only-desktop">[ VITALITY ]</div>
+      {item('protocol', 'Protocol', 'protocol', route.name === 'protocol', 'only-desktop')}
+      {item('fuel', 'Fuel', 'fuel', route.name === 'fuel')}
+      {item('train', 'Train', 'train', route.name === 'train')}
       {item('body', 'Body', 'body', route.name === 'body')}
 
       {pickerOpen && (

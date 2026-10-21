@@ -7,7 +7,7 @@ export async function listLogs(sinceISO: string): Promise<HabitLog[]> {
   return fetchAllPages<HabitLog>((from, to) =>
     supabase
       .from('habit_logs')
-      .select('habit_id, log_date, count')
+      .select('habit_id, log_date, count, created_at')
       .gte('log_date', sinceISO)
       .order('log_date')
       .order('habit_id')

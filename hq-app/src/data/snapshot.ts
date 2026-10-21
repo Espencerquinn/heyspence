@@ -8,8 +8,9 @@ import { listGoals, listMilestones } from './goals';
 import { listTasks } from './tasks';
 import { listEntries } from './journal';
 import { listPhotos } from './photos';
+import { listHealth, listWorkouts } from './health';
 import type {
-  Goal, Habit, HabitLog, JournalEntry, Milestone, Penalty, ProgressPhoto, Task, TitleRow, XpEvent,
+  Goal, Habit, HabitLog, HealthDaily, JournalEntry, Milestone, Penalty, ProgressPhoto, Task, TitleRow, Workout, XpEvent,
 } from '../types';
 
 export interface Snapshot {
@@ -23,14 +24,20 @@ export interface Snapshot {
   tasks: Task[];
   journal: JournalEntry[];
   photos: ProgressPhoto[];
+  health: HealthDaily[];     // last 60 days
+  workouts: Workout[];       // last 60 days
 }
 
 export async function loadSnapshot(): Promise<Snapshot> {
   const since = addDays(todayISO(), -400);
-  const [habits, logs, events, titles, penalties, goals, milestones, tasks, journal, photos] =
+  const recent = addDays(todayISO(), -60);
+  const [habits, logs, events, titles, penalties, goals, milestones, tasks, journal, photos,
+         health, workouts] =
     await Promise.all([
       listHabits(), listLogs(since), listEvents(), listTitles(), listPenalties(),
       listGoals(), listMilestones(), listTasks(), listEntries(), listPhotos(),
+      listHealth(recent), listWorkouts(recent),
     ]);
-  return { habits, logs, events, titles, penalties, goals, milestones, tasks, journal, photos };
+  return { habits, logs, events, titles, penalties, goals, milestones, tasks, journal, photos,
+           health, workouts };
 }
