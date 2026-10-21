@@ -8,6 +8,10 @@ export type StatKey = 'STR' | 'INT' | 'WIS' | 'CHA' | 'SENSE' | 'FOR' | 'BND';
 
 export type Rank = 'E' | 'D' | 'C' | 'B' | 'A' | 'S';
 export type Cadence = 'daily' | 'weekdays' | 'n_per_week';
+/** 'medication' and 'supplement' render in the Morning Protocol, ahead of the quest. */
+export type HabitKind = 'habit' | 'medication' | 'supplement';
+/** Synced health data that can tick a habit on its own. */
+export type AutoSource = 'steps' | 'workout' | 'strength';
 export type XpKind =
   | 'habit' | 'task' | 'journal' | 'milestone' | 'goal' | 'photo'
   | 'quest_bonus' | 'penalty';
@@ -76,12 +80,20 @@ export interface Habit {
   xp_value: number;
   sort_order: number;
   archived_at: string | null;
+  // Added in 0007. Optional here so pure-logic fixtures need not spell them out;
+  // rows from the DB always carry them.
+  kind?: HabitKind;
+  dose?: string | null;        // "40 units", "2 clicks"
+  notes?: string | null;
+  auto_source?: AutoSource | null;
+  active_from?: string | null; // YYYY-MM-DD; never due before this day
 }
 
 export interface HabitLog {
   habit_id: string;
   log_date: string;            // YYYY-MM-DD
   count: number;
+  created_at?: string;         // first tick that day — "taken at" for protocol items
 }
 
 export interface Goal {
@@ -151,4 +163,54 @@ export interface Penalty {
   missed_habit_ids: string[];
   xp_lost: number;             // stored positive
   streak_before: number;
+}
+
+/* ---------- vitality (0007): health sync + fuel ---------- */
+
+export interface HealthDaily {
+  metric_date: string;         // YYYY-MM-DD, the phone's local day
+  metric: string;              // 'steps' | 'active_kcal' | 'sleep_hours' | 'resting_hr' | ...
+  value: number;
+  unit: string | null;
+  updated_at: string;
+}
+
+export interface Workout {
+  id: string;
+  name: string;                // "Traditional Strength Training"
+  source: string | null;       // "Tonal"
+  started_at: string;
+  workout_date: string;
+  duration_min: number | null;
+  active_kcal: number | null;
+  avg_hr: number | null;
+}
+
+export type Meal = 'breakfast' | 'lunch' | 'dinner' | 'snack';
+export type FoodSource = 'manual' | 'off' | 'usda' | 'ai' | 'repeat';
+
+export interface FoodEntry {
+  id: string;
+  eaten_on: string;
+  meal: Meal;
+  name: string;
+  servings: number;
+  // per serving
+  kcal: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  fiber_g: number | null;
+  serving_label: string | null;
+  source: FoodSource;
+  source_ref: string | null;
+  created_at: string;
+}
+
+export interface MacroTargets {
+  kcal: number;
+  protein_g: number;
+  carbs_g: number;
+  fat_g: number;
+  fiber_g: number;
 }

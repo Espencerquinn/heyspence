@@ -15,7 +15,7 @@ export function buildLogIndex(logs: ReadonlyArray<HabitLog>): Map<string, number
 }
 
 /**
- * Is this habit expected today?
+ * Is this habit expected today? Never before its `active_from` day.
  *  - daily      → always
  *  - weekdays   → only on the listed days of the week
  *  - n_per_week → while the Mon–Sun target is unmet, OR on a day already
@@ -23,6 +23,8 @@ export function buildLogIndex(logs: ReadonlyArray<HabitLog>): Map<string, number
  */
 export function isDueOn(habit: Habit, date: string, index: Map<string, number>): boolean {
   if (habit.archived_at) return false;
+  // A habit added (or un-paused) today must not turn earlier days into misses.
+  if (habit.active_from && date < habit.active_from) return false;
   switch (habit.cadence) {
     case 'daily':
       return true;

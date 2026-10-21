@@ -3,6 +3,7 @@ import { createHabit } from '../data/habits';
 import { useSystem } from '../state/SystemContext';
 import type { Cadence, Domain } from '../types';
 import { XP } from '../system/xp';
+import { todayISO } from '../system/dates';
 
 const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -45,6 +46,7 @@ export function HabitEditor({ domain }: { domain: Domain }) {
         xp_value: xpValue,
         sort_order: domainHabits.length * 10,
         archived_at: null,
+        active_from: todayISO(),   // local day; the column default is the DB's UTC date
       });
       resetForm();
       await reload();

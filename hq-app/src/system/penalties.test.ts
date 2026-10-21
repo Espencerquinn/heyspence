@@ -13,6 +13,16 @@ const logs = (...pairs: Array<[string, string]>): HabitLog[] =>
   pairs.map(([habit_id, log_date]) => ({ habit_id, log_date, count: 1 }));
 
 describe('evaluatePenalties', () => {
+  it('does not fine a cleared day for a habit added after it', () => {
+    const out = evaluatePenalties({
+      fromDate: '2026-08-30', throughDate: '2026-08-31',
+      habits: [habit('a'), habit('new', { active_from: '2026-08-31' })],
+      index: buildLogIndex(logs(['a', '2026-08-30'], ['a', '2026-08-31'], ['new', '2026-08-31'])),
+      alreadyPenalized: new Set(),
+    });
+    expect(out).toEqual([]);
+  });
+
   it('flags a day where a due habit went unlogged', () => {
     const out = evaluatePenalties({
       fromDate: '2026-08-30', throughDate: '2026-08-30',

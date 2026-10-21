@@ -165,3 +165,36 @@ npm run build
 
 Always run **all three** of test, tsc, and build before committing — Vitest compiles through esbuild and
 will happily pass a suite that does not type-check.
+
+---
+
+## Vitality (2026-10-21): Morning Protocol, Train, Fuel, Health sync
+
+Migrations `0005`–`0009` were applied directly through the Supabase Management API
+(`POST /v1/projects/{ref}/database/query`), the same way as `0001`–`0004`: HQ's version
+numbers collide with the job board's in `supabase_migrations.schema_migrations`, so
+**do not `supabase db push` from `hq-backend/`**. Apply a new HQ migration by running its SQL.
+
+- **Morning Protocol** — meds/supplements are `hq.habits` rows with `kind` =
+  `medication`/`supplement` and a `dose`. Managed at `/protocol` (edit, pause, resume).
+- **`active_from`** — a habit is never due before this date. Set to today on create, on
+  resume, and on a schedule change, so the lazy penalty catch-up cannot fine past days for
+  a habit that did not exist (or had different days) then.
+- **Health sync** — Edge Function `hq-health-ingest` (deployed `--no-verify-jwt`), fed by the
+  Health Auto Export iOS app's REST automation. Auth is `Authorization: Bearer $HQ_INGEST_TOKEN`
+  (function secret; local copy in gitignored `hq-backend/.hq-ingest.env`). Writes
+  `hq.health_daily` + `hq.workouts`; the last 50 deliveries land in `hq.ingest_log` for debugging
+  unknown payload shapes. Tonal reaches it via Tonal → Apple Health.
+- **Auto-ticks** — habits with `auto_source` (`steps` / `workout` / `strength`) are ticked from
+  synced data for yesterday and today on app load, before penalty catch-up.
+- **Fuel** — `hq.food_entries` (macros per serving) + singleton `hq.macro_targets`. Edge Function
+  `hq-food` (owner JWT required): Open Food Facts barcode lookup, USDA FoodData Central search
+  (`USDA_API_KEY` secret optional; falls back to `DEMO_KEY`), and a Claude estimate from a typed
+  description (needs `ANTHROPIC_API_KEY` secret; returns 501 until set).
+
+Deploy functions from `hq-backend/`:
+
+```bash
+supabase functions deploy hq-health-ingest --project-ref utvurjzrvnghbmzjrrhq --no-verify-jwt --use-api
+supabase functions deploy hq-food          --project-ref utvurjzrvnghbmzjrrhq --use-api
+```

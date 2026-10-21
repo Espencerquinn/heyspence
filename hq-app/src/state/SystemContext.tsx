@@ -9,10 +9,12 @@ import { recordPenalty } from '../data/penalties';
 import { unlockTitle } from '../data/titles';
 import { derivePlayer, isDayCleared, type PlayerState } from '../system/derive';
 import { rankFromLevel } from '../system/levels';
-import { buildLogIndex, isMetOn } from '../system/streaks';
+import { buildLogIndex, isMetOn, logKey } from '../system/streaks';
 import { addDays, todayISO } from '../system/dates';
 import { evaluateTitles, emptyTitleContext } from '../system/titles';
 import { planCatchup } from '../system/catchup';
+import { planAutoTicks } from '../system/autotick';
+import { healthIndex } from '../data/health';
 import { XP, playerTotal } from '../system/xp';
 import { useNotify } from './useNotifications';
 import {
@@ -101,6 +103,38 @@ async function runCatchup(snap: Snapshot, today: string): Promise<number> {
   return applied;
 }
 
+/**
+ * Applies synced health data (steps, Tonal sessions) to auto-sourced habits for
+ * yesterday and today, BEFORE the penalty catch-up — so a day the watch proved
+ * you cleared is not fined just because the app was not opened to tick it.
+ * Awards habit EXP on crossing the target, and the quest bonus if that crossing
+ * cleared the day. Returns how many logs changed.
+ */
+async function runAutoTicks(snap: Snapshot, today: string): Promise<number> {
+  const yesterday = addDays(today, -1);
+  const index = buildLogIndex(snap.logs);
+  const ticks = planAutoTicks({
+    habits: snap.habits, dates: [yesterday, today], index,
+    health: healthIndex(snap.health), workouts: snap.workouts,
+  });
+  for (const t of ticks) {
+    const wasMet = isMetOn(t.habit, t.date, index);
+    await setLog(t.habit.id, t.date, t.count);
+    index.set(logKey(t.habit.id, t.date), t.count);
+    if (!wasMet && isMetOn(t.habit, t.date, index)) {
+      await award({ amount: t.habit.xp_value, kind: 'habit', domain: t.habit.domain,
+                    refId: t.habit.id, occurredOn: t.date });
+    }
+  }
+  for (const date of new Set(ticks.map((t) => t.date))) {
+    const bonusAlready = snap.events.some((e) => e.kind === 'quest_bonus' && e.occurred_on === date);
+    if (!bonusAlready && isDayCleared(snap.habits, index, date)) {
+      await award({ amount: XP.questBonus, kind: 'quest_bonus', occurredOn: date });
+    }
+  }
+  return ticks.length;
+}
+
 export function SystemProvider({ children }: { children: ReactNode }) {
   const [snapshot, setSnapshot] = useState<Snapshot | null>(null);
   const [error, setError] = useState<string>('');
@@ -119,7 +153,9 @@ export function SystemProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const snap = await loadSnapshot();
+      let snap = await loadSnapshot();
+      if (cancelled) return;
+      if (await runAutoTicks(snap, today) > 0) snap = await loadSnapshot();
       if (cancelled) return;
       const lost = await runCatchup(snap, today);
       const fresh = lost > 0 ? await loadSnapshot() : snap;
